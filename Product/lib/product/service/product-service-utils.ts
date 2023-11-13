@@ -1,0 +1,80 @@
+import { Connection } from "typeorm";
+
+export const addSlashes = (str: string): string => {
+    return (str + '').replace(/'/g, "''");
+}
+
+export const checkSlug = async (_connection: Connection, slug: string, id: number, count: number = 0): Promise<number> => {
+    if (count > 0) {
+        slug = slug + count;
+    }
+    const checkSlugData = async (): Promise<number> => {
+        const query = await _connection.manager.createQueryBuilder('Product', 'product');
+        query.where('product.product_slug = :slug', { slug });
+        if (id > 0) {
+            query.andWhere('product.productId != :id', { id });
+        }
+        return query.getCount();
+    }
+    return await checkSlugData();
+}
+
+export const validate_slug = async (_connection: Connection, $slug: string, $id: number = 0, $count: number = 0) => {
+
+    const checkSlug = async (slug: string, id: number, count: number = 0) => {
+        if (count > 0) {
+            slug = slug + count;
+        }
+        const checkSlugData = async (slug: string, id: number) => {
+            const query = await _connection.manager.createQueryBuilder('Product', 'product');
+            query.where('product.product_slug = :slug', { slug });
+            if (id > 0) {
+                query.andWhere('product.productId != :id', { id });
+            }
+            return query.getCount();
+        }
+
+        return await checkSlugData(slug, id);
+    }
+
+    const slugCount = await checkSlug($slug, $id, $count);
+    if (slugCount) {
+        if (!$count) {
+            $count = 1;
+        } else {
+            $count++;
+        }
+        return await validate_slug(_connection, $slug, $id, $count);
+    } else {
+        if ($count > 0) {
+            $slug = $slug + $count;
+        }
+        return $slug;
+    }
+}
+
+export const escapeChar = (data: string) => {
+    const val = data
+        .replace(/&/g, '&amp;')
+        .replace(/</g, '&lt;')
+        .replace(/>/g, '&gt;')
+        .replace(/"/g, '&quot;')
+        .replace(/'/g, '&#39;')
+        .replace(/,/g, '&sbquo;')
+        .replace(/=/g, '&#61;')
+        .replace(/-/g, '&#45;')
+        .replace(/…/g, '&hellip;')
+        .replace(/@/g, '&commat;')
+        .replace(/©/g, '&copy;')
+        .replace(/#/g, '&#35;')
+        .replace(/“/g, '&ldquo;')
+        .replace(/’/g, '&rsquo;')
+        .replace(/‘/g, '&lsquo;')
+        .replace(/™/g, '&trade;')
+        .replace(/®/g, '&reg;')
+        .replace(/–/g, '&ndash;')
+        .replace(/é/g, '&eacute;')
+        .replace(/€/g, '&euro;')
+        .replace(/£/g, '&pound;');
+    return val;
+}

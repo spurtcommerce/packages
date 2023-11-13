@@ -1,6 +1,6 @@
 {
   "name": "@spurtcommerce/auth",
-  "version": "4.8.2",
+  "version": "1.1.0",
   "description": "Spurtcommerce auth service",
   "main": "dist/index.js",
   "scripts": {

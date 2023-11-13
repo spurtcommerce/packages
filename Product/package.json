@@ -1,0 +1,25 @@
+{
+  "name": "@spurtcommerce/product",
+  "version": "1.1.9",
+  "description": "Spurtcommerce Product",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Piccosoft",
+  "license": "ISC",
+  "dependencies": {
+    "boxen": "^5.1.2",
+    "chalk": "^2.4.1",
+    "class-transformer": "^0.5.1",
+    "exceljs": "^4.2.0",
+    "moment": "^2.29.4",
+    "tslib": "^2.6.2",
+    "typeorm": "^0.2.45",
+    "yargs": "^17.7.2"
+  },
+  "devDependencies": {
+    "@types/node": "^20.8.2"
+  }
+}
