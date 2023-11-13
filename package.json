@@ -1,0 +1,21 @@
+{
+  "name": "@spurtcommerce/auth",
+  "version": "1.1.0",
+  "description": "Spurtcommerce auth service",
+  "main": "dist/index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "spurtcommerce",
+  "license": "ISC",
+  "dependencies": {
+    "crypto-js": "^4.0.0",
+    "jsonwebtoken": "^9.0.0",
+    "routing-controllers": "^0.10.1",
+    "typeorm": "^0.2.45"
+  },
+  "devDependencies": {
+    "@types/node": "^20.7.1",
+    "typescript": "^5.2.2"
+  }
+}
