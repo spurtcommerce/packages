@@ -1,8 +1,8 @@
 /*
  * Spurtcommerce Auth
- * version 1.0.9
- * Copyrights © 2023, Spurtcommerce Esolutions Private Limited
- * Author Spurtcommerce Esolutions Pvt Ltd <support@spurtcommerce.com>
+ * version 4.8.2
+ * Copyrights © 2023, Spurtcommerce e-solutions Private Limited
+ * Author Spurtcommerce e-solutions Pvt Ltd <support@spurtcommerce.com>
  * Licensed under the MIT license.
  */
 
