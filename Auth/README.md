@@ -20,8 +20,9 @@ The @spurtcommerce/auth npm package serves as a robust authorization middleware 
    *  Ensures users meet specific criteria such as being active and not flagged for deletion
 
 #### Easy Implementation: 
-    * Simply integrate the authorizationChecker function into your routing-controllers setup.
-    * Customize access rules to fit your application's specific needs.
+
+* Simply integrate the authorizationChecker function into your routing-controllers setup.
+* Customize access rules to fit your application's specific needs.
 
 ## Package Installation
 
@@ -31,22 +32,29 @@ With npm:
 npm install @spurtcommerce/auth
 ```
 
-**Implementation logic:**
+#### Implementation logic:
+
 The authorizationChecker function takes three parameters:
-**Function Signature:**
-    • connection: A TypeORM connection object.
-    • jwtSecret: A secret key used for JWT operations.
-    • cryptoSecret: A secret key used for cryptographic operations.
-**Inner Authorization Checker Function:**
-    • Parses the authorization header from the HTTP request to extract the JWT token
-    • Decrypts the JWT token using CryptoJS and verifies it using the provided jwtSecret
-    • Checks if the token exists in the database to see if it has been revoked.
-    • Validates the user based on their ID and role
-    • Depending on the specified roles, it validates the user against different entities (Customer, Vendor, User) in the database
-    • It checks if the user has the required role and sets action.request.user accordingly
-    • For roles other than 'customer', 'vendor', and 'admin-vendor', the function performs additional permission checks based on the user's group and the requested route
-    • It retrieves and parses permissions from the user or user group and checks if the user has the necessary permissions for the requested route
-**Return Values:**
+
+#### Function Signature:
+
+* connection: A TypeORM connection object.
+* jwtSecret: A secret key used for JWT operations.
+* cryptoSecret: A secret key used for cryptographic operations.
+
+#### Inner Authorization Checker Function:
+
+* Parses the authorization header from the HTTP request to extract the JWT token
+* Decrypts the JWT token using CryptoJS and verifies it using the provided jwtSecret
+* Checks if the token exists in the database to see if it has been revoked.
+* Validates the user based on their ID and role
+* Depending on the specified roles, it validates the user against different entities (Customer, Vendor, User) in the database
+* It checks if the user has the required role and sets action.request.user accordingly
+* For roles other than 'customer', 'vendor', and 'admin-vendor', the function performs additional permission checks based on the user's group and the requested route
+* It retrieves and parses permissions from the user or user group and checks if the user has the necessary permissions for the requested route
+
+#### Return Values:
+
 The function returns true if the user is authorized, false otherwise.
 
 ### Usage Example

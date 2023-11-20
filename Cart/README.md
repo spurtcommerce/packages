@@ -2,16 +2,16 @@
 
 The @spurtcommerce/cart package is designed to streamline cart-related operations in Node.js applications. It offers features like creating and updating carts, retrieving cart lists, and removing items from the cart. With a focus on simplicity and efficiency, this npm package simplifies the implementation of shopping cart functionalities for developers.
 
-**Key Features:**
-    • **Cart Creation:** Seamlessly create and manage shopping carts in your Node.js application
-    • **Flexible Cart Updates:** Effortlessly update cart items, quantities, and prices to accommodate various scenarios
-    • **Intuitive Cart Deletion:** Easily remove items from the cart, ensuring a smooth user experience
-    • **Detailed Cart Listing:** Retrieve comprehensive lists of cart items with essential product details and pricing information
-    • **IP Address Tracking:** Enhance security and analytics by keeping track of user IP addresses
-    • **Product Option Support:** Handle products with multiple options, such as variations, with ease
-    • **Stock Management:** Implement stock-related checks to enforce quantity limits and prevent out-of-stock issues
-    • **Extensive Product Information:** Retrieve detailed product information, including images, descriptions, and stock status
-    • **Dynamic Pricing:** Leverage dynamic pricing features, including discounts and special offers, for an enhanced shopping experience
+#### Key Features:
+
+* Cart Creation: Seamlessly create and manage shopping carts in your Node.js application    Flexible Cart Updates:** Effortlessly update cart items, quantities, and prices to accommodate various scenarios
+* Intuitive Cart Deletion:  Easily remove items from the cart, ensuring a smooth user experience
+ * Detailed Cart Listing:** Retrieve comprehensive lists of cart items with essential product details and pricing information
+ * IP Address Tracking:** Enhance security and analytics by keeping track of user IP addresses
+* Product Option Support:** Handle products with multiple options, such as variations, with ease
+* Stock Management:** Implement stock-related checks to enforce quantity limits and prevent out-of-stock issues
+* Extensive Product Information:** Retrieve detailed product information, including images, descriptions, and stock status
+* Dynamic Pricing:** Leverage dynamic pricing features, including discounts and special offers, for an enhanced shopping experience
 
 ## Package Installation
 With npm:
