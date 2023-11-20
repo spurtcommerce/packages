@@ -3,17 +3,17 @@
 The @spurtcommerce/auth npm package serves as a robust authorization middleware designed for use with the "routing-controllers" library in Node.js applications. This middleware leverages TypeORM for database interactions, JWT for secure authentication, and CryptoJS for cryptographic operations that helps controlling access to your routes based on user roles, tokens, and permissions.
 
 ## Key Features:
-**User Roles and Permissions:**
-    • Validates users based on their roles, such as customers, vendors, and administrators
-    • Grants access based on user roles and permissions (action.request.user)
-**Token Security:**
+** User Roles and Permissions: **
+    *  Validates users based on their roles, such as customers, vendors, and administrators
+    *  Grants access based on user roles and permissions (action.request.user)
+** Token Security: **
     • Parses and decrypts JWT tokens (Json Web Tokens) from the HTTP request's 'authorization' header
     • Verifies the validity of tokens using the provided jwtSecret
     • Checks if the token has been revoked by checking the database
-**Database Integration:**
+** Database Integration: **
     • Validates users against different entities in the database, including 'Customer', 'Vendor', 'User', and 'UserGroup'
     • Ensures users meet specific criteria such as being active and not flagged for deletion
-**Easy Implementation:**
+** Easy Implementation: **
     • Simply integrate the authorizationChecker function into your routing-controllers setup.
     • Customize access rules to fit your application's specific needs.
 
