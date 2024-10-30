@@ -20,6 +20,7 @@ export const cartCreate = async (
         productPrice: number,
         tirePrice: number,
         ipAddress: string,
+        vendorId: number
     }
 ): Promise<{
     status: number,
@@ -87,7 +88,7 @@ export const cartCreate = async (
         findOption.productPrice = cartParam.productPrice;
         findOption.total = +cartParam.quantity * +cartParam.productPrice;
         findOption.tirePrice = cartParam.tirePrice ? cartParam.tirePrice : 0;
-        findOption.vendorId = 0;
+        findOption.vendorId = payload.vendorId;
         findOption.skuName = cartParam.skuName;
         findOption.createdDate = moment().format('YYYY-MM-DD HH:mm:ss');
         findOption.modifiedDate = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -131,7 +132,7 @@ export const cartCreate = async (
             addCustomerCart.quantity = cartParam.quantity,
             addCustomerCart.productPrice = cartParam.productPrice,
             addCustomerCart.tirePrice = cartParam.tirePrice ? cartParam.tirePrice : 0,
-            addCustomerCart.vendorId = 0;
+            addCustomerCart.vendorId = payload.vendorId;
         addCustomerCart.total = +cartParam.quantity * +cartParam.productPrice,
             addCustomerCart.skuName = cartParam.skuName;
         addCustomerCart.ip = cartParam.ipAddress;

@@ -1,6 +1,7 @@
 import { Connection } from "typeorm";
 import { escapeChar, validate_category_slug } from "./service/category-service-utils";
 import { categoryListByQueryBuilder } from "./service/category-service";
+import moment from "moment";
 
 export const categoryCreate = async (
     _connection: Connection,
@@ -36,6 +37,8 @@ export const categoryCreate = async (
     newCategory.categorySlug = await validate_category_slug(_connection, data);
     newCategory.isActive = payload.status;
     newCategory.categoryDescription = payload.categoryDescription ? escapeChar(payload.categoryDescription) : '';
+    newCategory.createdDate = moment().format('YYYY-MM-DD HH:mm:ss');
+    newCategory.modifiedDate = moment().format('YYYY-MM-DD HH:mm:ss');
     const categorySave: any = await categoryService.save(newCategory);
 
     const getAllPath: any = await categoryPathService.find({
@@ -72,6 +75,7 @@ export const categoryList = async (
     offset: number,
     keyword: string,
     status: string,
+    name: string,
     sortOrder: number,
 ) => {
     const select = [
@@ -117,6 +121,13 @@ export const categoryList = async (
         searchConditions.push({
             name: ['category.name'],
             value: keyword,
+        });
+    }
+
+    if (name?.trim()) {
+        searchConditions.push({
+            name: ['category.name'],
+            value: name,
         });
     }
 

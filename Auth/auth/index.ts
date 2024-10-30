@@ -10,7 +10,7 @@ import { Action } from 'routing-controllers';
 import { Connection } from 'typeorm';
 import jwt from 'jsonwebtoken';
 
-export function authorizationChecker(connection: Connection, jwtSecret: string, cryptoSecret: string): (action: Action, roles: string[]) => Promise<boolean> | boolean {
+export function authorizationChecker(connection: Connection, jwtSecret: string, cryptoSecret: string, additionalInfo: any): (action: Action, roles: string[]) => Promise<boolean> | boolean {
 
     return async function innerAuthorizationChecker(action: Action, roles: any): Promise<boolean> {
 
@@ -94,7 +94,21 @@ export function authorizationChecker(connection: Connection, jwtSecret: string, 
                 }, relations: ['customer'],
             });
             if (vendors) {
-                if (vendors.customer.isActive === 1 && vendors.customer.deleteFlag === 0) {
+                if (vendors.isActive === 1 && vendors.customer.deleteFlag === 0 && vendors.approvalFlag === 1) {
+                    return vendors;
+                }
+            }
+            return undefined;
+        }
+
+        const validateUnapprovedVendor = async (id: number) => {
+            const vendors: any = await connection.getRepository('Vendor').findOne({
+                where: {
+                    vendorId: id,
+                }, relations: ['customer'],
+            });
+            if (vendors) {
+                if (vendors.isActive === 1 && vendors.customer.deleteFlag === 0) {
                     return vendors;
                 }
             }
@@ -135,6 +149,13 @@ export function authorizationChecker(connection: Connection, jwtSecret: string, 
 
         } else if (roles[0] === 'vendor') {
             action.request.user = await validateVendor(userId.id);
+            if (action.request.user === undefined) {
+                return false;
+            }
+            return true;
+
+        } else if (roles[0] === 'vendor-unapproved') {
+            action.request.user = await validateUnapprovedVendor(userId.id);
             if (action.request.user === undefined) {
                 return false;
             }

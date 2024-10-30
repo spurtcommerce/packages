@@ -1,6 +1,6 @@
 {
   "name": "@spurtcommerce/marketplace",
-  "version": "1.0.9",
+  "version": "1.2.2",
   "description": "Spurtcommerce Marketplace",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

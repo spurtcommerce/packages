@@ -1,6 +1,6 @@
 {
   "name": "@spurtcommerce/order",
-  "version": "1.1.8",
+  "version": "2.0.1",
   "description": "Spurtcommerce Order",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

@@ -107,9 +107,10 @@ export const getCustomerList = async (
     limit: number,
     offset: number,
     name: string,
-    status: number,
+    status: string,
     email: string,
     customerGroup: string,
+    keyword: string,
     date: string,
     count: number,
 
@@ -138,6 +139,13 @@ export const getCustomerList = async (
             value: customerGroup,
         });
     }
+    if (status === '0' || status) {
+        whereConditions.push({
+            name: 'Customer.isActive',
+            op: 'and',
+            value: +status,
+        });
+    }
     const searchConditions = [];
     if (name && name !== '') {
         searchConditions.push({
@@ -155,6 +163,12 @@ export const getCustomerList = async (
         searchConditions.push({
             name: ['Customer.createdDate'],
             value: date,
+        });
+    }
+    if (keyword?.trim()) {
+        searchConditions.push({
+            name: ['Customer.firstName', 'Customer.email', 'customerGroup.name'],
+            value: keyword.toLowerCase(),
         });
     }
     const sort = [];

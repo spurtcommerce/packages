@@ -8,7 +8,13 @@ export const vendorProductList = async (
     keyword: string,
     sku: string,
     status: string,
+    approvalFlag: string,
     price: number,
+    productName: string,
+    vendorName: string,
+    updatedOn: string,
+    sortBy: string,
+    sortOrder: string,
     count: number | boolean,
     vendorId: number
 ): Promise<{
@@ -24,6 +30,7 @@ export const vendorProductList = async (
         'VendorProducts.vendorProductCommission as vendorProductCommission',
         'VendorProducts.quotationAvailable as quotationAvailable',
         'VendorProducts.approvalFlag as approvalFlag',
+        'VendorProducts.rejectReason as rejectReason',
         'vendor.vendorId as vendorId',
         'product.productId as productId',
         'product.name as name',
@@ -40,6 +47,7 @@ export const vendorProductList = async (
         'product.length as length',
         'product.weight as weight',
         'VendorProducts.createdDate as createdDate',
+        'VendorProducts.modifiedDate as modifiedDate',
         'product.keywords as keywords',
         'product.isSimplified as isSimplified',
         'product.attributeKeyword as attributeKeyword',
@@ -54,11 +62,11 @@ export const vendorProductList = async (
     const whereCondition = [];
     const relations = [];
     const groupBy = [];
-    relations.push({
-        tableName: 'VendorProducts.product',
-        aliasName: 'product',
-    },
-
+    relations.push(
+        {
+            tableName: 'VendorProducts.product',
+            aliasName: 'product',
+        },
         {
             tableName: 'VendorProducts.vendor',
             aliasName: 'vendor',
@@ -66,7 +74,8 @@ export const vendorProductList = async (
         {
             tableName: 'vendor.customer',
             aliasName: 'customer',
-        });
+        }
+    );
     if (status && status !== '') {
         whereCondition.push({
             name: 'product.isActive',
@@ -74,28 +83,90 @@ export const vendorProductList = async (
             value: +status,
         });
     }
-    whereCondition.push({
-        name: 'vendor.vendorId',
-        op: 'and',
-        value: vendorId,
-    },
+    if (approvalFlag && approvalFlag !== '') {
+        whereCondition.push({
+            name: 'VendorProducts.approvalFlag',
+            op: 'and',
+            value: +approvalFlag,
+        });
+    }
+    whereCondition.push(
+        {
+            name: 'vendor.vendorId',
+            op: 'and',
+            value: vendorId,
+        },
         {
             name: 'VendorProducts.reuse',
             op: 'IS NULL',
             value: '',
-        });
+        }
+    );
     const searchConditions = [];
     if (keyword) {
         searchConditions.push({
             name: ['product.keywords', 'product.name', 'customer.first_name'],
             value: keyword.toLowerCase(),
         });
+    } else if (!keyword) {
+        if (productName?.trim()) {
+            searchConditions.push({
+                name: ['product.name'],
+                value: productName.toLowerCase(),
+            });
+        }
+        if (vendorName?.trim()) {
+            searchConditions.push({
+                name: ['customer.first_name'],
+                value: vendorName.toLowerCase(),
+            });
+        }
+        if (sku?.trim()) {
+            searchConditions.push({
+                name: ['product.sku'],
+                value: sku.toLowerCase(),
+            });
+        }
+        if (updatedOn?.trim()) {
+            searchConditions.push({
+                name: ['VendorProducts.modifiedDate'],
+                value: updatedOn,
+            });
+        }
+        if (price) {
+            whereCondition.push({
+                name: 'product.price',
+                op: 'and',
+                value: price,
+            });
+        }
     }
     const sort = [];
-    sort.push({
-        name: 'VendorProducts.createdDate',
-        order: 'DESC',
-    });
+
+    if (sortBy === 'productName') {
+        sort.push({
+            name: 'product.name',
+            order: sortOrder ?? 'DESC',
+        });
+    }
+    if (sortBy === 'stock') {
+        sort.push({
+            name: 'product.quantity',
+            order: sortOrder ?? 'DESC',
+        });
+    }
+    if (sortBy === 'sku') {
+        sort.push({
+            name: 'product.sku',
+            order: sortOrder ?? 'DESC',
+        });
+    }
+    if (sortBy === 'createdDate' || !sortBy || sortBy === 'orderId') {
+        sort.push({
+            name: 'VendorProducts.createdDate',
+            order: 'DESC',
+        });
+    }
 
     if (count) {
         const vendorProductListCount: any = await vendorProductListByQueryBuilder(_connection, limit, offset, selects, whereCondition, searchConditions, relations, groupBy, sort, price, true, true);

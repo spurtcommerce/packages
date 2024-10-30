@@ -10,7 +10,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.authorizationChecker = void 0;
 const tslib_1 = require("tslib");
 const jsonwebtoken_1 = tslib_1.__importDefault(require("jsonwebtoken"));
-function authorizationChecker(connection, jwtSecret, cryptoSecret) {
+function authorizationChecker(connection, jwtSecret, cryptoSecret, additionalInfo) {
     return function innerAuthorizationChecker(action, roles) {
         return tslib_1.__awaiter(this, void 0, void 0, function* () {
             const request = action.request;
@@ -86,7 +86,20 @@ function authorizationChecker(connection, jwtSecret, cryptoSecret) {
                     }, relations: ['customer'],
                 });
                 if (vendors) {
-                    if (vendors.customer.isActive === 1 && vendors.customer.deleteFlag === 0) {
+                    if (vendors.isActive === 1 && vendors.customer.deleteFlag === 0 && vendors.approvalFlag === 1) {
+                        return vendors;
+                    }
+                }
+                return undefined;
+            });
+            const validateUnapprovedVendor = (id) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+                const vendors = yield connection.getRepository('Vendor').findOne({
+                    where: {
+                        vendorId: id,
+                    }, relations: ['customer'],
+                });
+                if (vendors) {
+                    if (vendors.isActive === 1 && vendors.customer.deleteFlag === 0) {
                         return vendors;
                     }
                 }
@@ -123,6 +136,13 @@ function authorizationChecker(connection, jwtSecret, cryptoSecret) {
             }
             else if (roles[0] === 'vendor') {
                 action.request.user = yield validateVendor(userId.id);
+                if (action.request.user === undefined) {
+                    return false;
+                }
+                return true;
+            }
+            else if (roles[0] === 'vendor-unapproved') {
+                action.request.user = yield validateUnapprovedVendor(userId.id);
                 if (action.request.user === undefined) {
                     return false;
                 }

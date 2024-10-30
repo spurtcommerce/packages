@@ -87,6 +87,31 @@ export const vendorRegister = async (
                     newVendor.contactPersonName = registerParam.contactPersonName;
                     newVendor.customerId = customer.id;
                     newVendor.approvalFlag = 0;
+                    newVendor.verification = {
+                        policy: 0,
+                        email: 0,
+                        decision: 0,
+                        category: 0,
+                        document: 0,
+                        storeFront: 0,
+                        bankAccount: 0,
+                        paymentInfo: 0,
+                        companyDetail: 0,
+                        deliveryMethod: 0,
+                        subscriptionPlan: 0,
+                        distributionPoint: 0,
+                    };
+                    newVendor.verificationDetailComment = [];
+                    newVendor.verificationComment = [];
+                    newVendor.bankAccount = {
+                        accountHolderName: '',
+                        accountNumber: '',
+                        branch: '',
+                        ifsc: '',
+                        bankName: '',
+                        bic: '',
+                        accountCreatedOn: ''
+                    };
                     newVendor.displayNameUrl = displayName;
                     newVendor.companyName = registerParam.companyName;
                     newVendor.createdDate = moment().format('YYYY-MM-DD HH:mm:ss');
@@ -200,6 +225,31 @@ export const vendorRegister = async (
             vendor.contactPersonName = registerParam.contactPersonName;
             vendor.customerId = resultData.id;
             vendor.approvalFlag = 0;
+            vendor.verification = {
+                policy: 0,
+                email: 0,
+                decision: 0,
+                category: 0,
+                document: 0,
+                storeFront: 0,
+                bankAccount: 0,
+                paymentInfo: 0,
+                companyDetail: 0,
+                deliveryMethod: 0,
+                subscriptionPlan: 0,
+                distributionPoint: 0,
+            };
+            vendor.verificationDetailComment = [];
+            vendor.verificationComment = [];
+            vendor.bankAccount = {
+                accountHolderName: '',
+                accountNumber: '',
+                branch: '',
+                ifsc: '',
+                bankName: '',
+                bic: '',
+                accountCreatedOn: ''
+            };
             vendor.companyName = registerParam.companyName;
             vendor.displayNameUrl = registerParam.displayName;
             vendor.createdDate = moment().format('YYYY-MM-DD HH:mm:ss');

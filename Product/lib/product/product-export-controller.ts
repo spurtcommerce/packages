@@ -22,7 +22,7 @@ export const excelExportProduct = async (_connection: Connection, productIds?: n
     const productList: any = await productService.find(condition);
 
     rows.push(...productList.map((product) => {
-        const dataDescription = product.description.replace(/[&\/\\@#,+()$~%.'":*?<>{}]/g, '');
+        const dataDescription = product.description?.replace(/[&\/\\@#,+()$~%.'":*?<>{}]/g, '') ?? '';
         return [product.productId, product.name, dataDescription, product.price, product.sku, product.upc, product.quantity, product.minimumQuantity, product.subtractStock]
     }));
 

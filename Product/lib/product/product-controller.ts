@@ -221,8 +221,8 @@ export const productCreate = async (payload: any, _connection: any): Promise<{
 
 enum productCol {
     productId = 'Product.productId as productId',
-    skuName = 'Product.name as name',
-    productName = 'Product.quantity as quantity',
+    productName = 'Product.name as name',
+    description = 'Product.description as description',
     productPrice = 'Product.price as price',
     productSlug = 'Product.productSlug as productSlug',
     quantity = 'Product.quantity as quantity',
@@ -250,14 +250,16 @@ export const productList = async (
     limit: number,
     offset: number,
     keyword: string,
+    productName: string,
     sku: string,
     status: string,
     price: number,
-    count: number | boolean
+    count: number | boolean,
 ): Promise<any> => {
 
     const columns = ['Product.skuId as skuId', ...select.map((col) => productCol[col])];
     const relations = [];
+    const groupBy = [];
     const WhereConditions = [];
 
     if (sku) {
@@ -275,12 +277,21 @@ export const productList = async (
         });
     }
     const searchConditions = [];
+    const searchConditionName = ['Product.name'];
     if (keyword !== '') {
         searchConditions.push(
             {
-                name: ['Product.name'],
+                name: searchConditionName,
                 value: keyword,
-            });
+            }
+        );
+    } else if (productName?.trim()) {
+        searchConditions.push(
+            {
+                name: searchConditionName,
+                value: productName,
+            }
+        );
     }
     const sort = [];
     if (+price && price === 1) {
@@ -299,9 +310,9 @@ export const productList = async (
             order: 'DESC',
         });
     }
-    const productLists: any = await listByQueryBuilder(_connection, limit, offset, columns, WhereConditions, searchConditions, relations, [], sort, false, true);
+    const productLists: any = await listByQueryBuilder(_connection, limit, offset, columns, WhereConditions, searchConditions, relations, groupBy, sort, false, true);
     if (count) {
-        const productListCount: any = await listByQueryBuilder(_connection, limit, offset, columns, WhereConditions, [], relations, [], sort, true, true);
+        const productListCount: any = await listByQueryBuilder(_connection, limit, offset, columns, WhereConditions, searchConditions, relations, groupBy, sort, true, true);
         return {
             status: 1,
             message: 'Successfully got product lists count.',
