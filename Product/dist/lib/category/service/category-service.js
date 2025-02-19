@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.categoryListByQueryBuilder = void 0;
 const tslib_1 = require("tslib");
 const typeorm_1 = require("typeorm");
-const categoryListByQueryBuilder = (_connection, limit, offset, select = [], whereConditions = [], searchConditions = [], relations = [], groupBy = [], sort = [], count = false, rawQuery = false) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const categoryListByQueryBuilder = (_connection_1, limit_1, offset_1, ...args_1) => tslib_1.__awaiter(void 0, [_connection_1, limit_1, offset_1, ...args_1], void 0, function* (_connection, limit, offset, select = [], whereConditions = [], searchConditions = [], relations = [], groupBy = [], sort = [], count = false, rawQuery = false) {
     const query = yield _connection.getRepository('CategoryPath').createQueryBuilder();
     // Select
     if (select && select.length > 0) {

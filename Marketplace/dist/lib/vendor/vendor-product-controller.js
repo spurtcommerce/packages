@@ -134,6 +134,12 @@ const vendorProductList = (_connection, limit, offset, keyword, sku, status, app
             order: sortOrder !== null && sortOrder !== void 0 ? sortOrder : 'DESC',
         });
     }
+    if (sortBy === 'modifiedDate') {
+        sort.push({
+            name: 'VendorProducts.modifiedDate',
+            order: sortOrder !== null && sortOrder !== void 0 ? sortOrder : 'DESC',
+        });
+    }
     if (sortBy === 'createdDate' || !sortBy || sortBy === 'orderId') {
         sort.push({
             name: 'VendorProducts.createdDate',

@@ -41,7 +41,7 @@ declare const product: {
         message: string;
         data: any;
     }>;
-    categoryList: (_connection: import("typeorm").Connection, limit: number, offset: number, keyword: string, status: string, name: string, sortOrder: number) => Promise<{
+    categoryList: (_connection: import("typeorm").Connection, limit: number, offset: number, keyword: string, status: string, name: string, sortOrder: number, industryId: number) => Promise<{
         status: number;
         message: string;
         data: number | any[];
@@ -51,6 +51,7 @@ declare const product: {
         containerName: string;
         containerPath: string;
         parentInt: number;
+        industryId: number;
         sortOrder: number;
         categorySlug: string;
         categoryDescription: string;

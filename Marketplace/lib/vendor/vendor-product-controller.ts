@@ -161,6 +161,12 @@ export const vendorProductList = async (
             order: sortOrder ?? 'DESC',
         });
     }
+    if (sortBy === 'modifiedDate') {
+        sort.push({
+            name: 'VendorProducts.modifiedDate',
+            order: sortOrder ?? 'DESC',
+        });
+    }
     if (sortBy === 'createdDate' || !sortBy || sortBy === 'orderId') {
         sort.push({
             name: 'VendorProducts.createdDate',

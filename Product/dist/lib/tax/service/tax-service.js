@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.list = void 0;
 const tslib_1 = require("tslib");
 const typeorm_1 = require("typeorm");
-const list = (_connection, limit = 0, offset = 0, select = [], whereConditions = [], keyword, count) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const list = (_connection_1, ...args_1) => tslib_1.__awaiter(void 0, [_connection_1, ...args_1], void 0, function* (_connection, limit = 0, offset = 0, select = [], whereConditions = [], keyword, count) {
     const condition = {};
     if (select && select.length > 0) {
         condition.select = select;

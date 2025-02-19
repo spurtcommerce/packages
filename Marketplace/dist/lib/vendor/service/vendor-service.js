@@ -31,7 +31,7 @@ const getOrderEarnings = (_connection, id) => tslib_1.__awaiter(void 0, void 0, 
     return query.getRawOne();
 });
 exports.getOrderEarnings = getOrderEarnings;
-const vendorProductListByQueryBuilder = (_connection, limit, offset, select = [], whereConditions = [], searchConditions = [], relations = [], groupBy = [], sort = [], price, count, rawQuery) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const vendorProductListByQueryBuilder = (_connection_1, limit_1, offset_1, ...args_1) => tslib_1.__awaiter(void 0, [_connection_1, limit_1, offset_1, ...args_1], void 0, function* (_connection, limit, offset, select = [], whereConditions = [], searchConditions = [], relations = [], groupBy = [], sort = [], price, count, rawQuery) {
     const query = yield _connection.getRepository('VendorProducts').createQueryBuilder();
     // Select
     if (select && select.length > 0) {

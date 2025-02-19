@@ -10,6 +10,7 @@ export const categoryCreate = async (
         containerName: string,
         containerPath: string,
         parentInt: number,
+        industryId: number,
         sortOrder: number,
         categorySlug: string,
         categoryDescription: string,
@@ -31,6 +32,7 @@ export const categoryCreate = async (
     newCategory.imagePath = payload.containerPath;
     newCategory.parentInt = payload.parentInt;
     newCategory.sortOrder = payload.sortOrder;
+    newCategory.industryId = payload.industryId;
     const metaTagTitle = payload.categorySlug ? payload.categorySlug : payload.name;
     const slug = metaTagTitle.trim();
     const data = slug.replace(/\s+/g, '-').replace(/[&\/\\@#,+()$~%.'":*?<>{}]/g, '').toLowerCase();
@@ -77,12 +79,14 @@ export const categoryList = async (
     status: string,
     name: string,
     sortOrder: number,
+    industryId: number,
 ) => {
     const select = [
         'CategoryPath.categoryId as categoryId',
         'category.sortOrder as sortOrder',
         'category.parentInt as parentInt',
         'category.name as name',
+        'category.industryId as industryId',
         'category.image as image',
         'category.imagePath as imagePath',
         'category.isActive as isActive',
@@ -113,6 +117,14 @@ export const categoryList = async (
             name: 'category.isActive',
             op: 'or',
             value: +status,
+        });
+    }
+
+    if (industryId) {
+        whereConditions.push({
+            name: 'category.industryId',
+            op: 'and',
+            value: industryId,
         });
     }
 

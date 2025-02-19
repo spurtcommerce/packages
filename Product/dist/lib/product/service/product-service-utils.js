@@ -6,7 +6,7 @@ const addSlashes = (str) => {
     return (str + '').replace(/'/g, "''");
 };
 exports.addSlashes = addSlashes;
-const checkSlug = (_connection, slug, id, count = 0) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const checkSlug = (_connection_1, slug_1, id_1, ...args_1) => tslib_1.__awaiter(void 0, [_connection_1, slug_1, id_1, ...args_1], void 0, function* (_connection, slug, id, count = 0) {
     if (count > 0) {
         slug = slug + count;
     }
@@ -21,8 +21,8 @@ const checkSlug = (_connection, slug, id, count = 0) => tslib_1.__awaiter(void 0
     return yield checkSlugData();
 });
 exports.checkSlug = checkSlug;
-const validate_slug = (_connection, $slug, $id = 0, $count = 0) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-    const checkSlug = (slug, id, count = 0) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const validate_slug = (_connection_1, $slug_1, ...args_1) => tslib_1.__awaiter(void 0, [_connection_1, $slug_1, ...args_1], void 0, function* (_connection, $slug, $id = 0, $count = 0) {
+    const checkSlug = (slug_1, id_1, ...args_2) => tslib_1.__awaiter(void 0, [slug_1, id_1, ...args_2], void 0, function* (slug, id, count = 0) {
         if (count > 0) {
             slug = slug + count;
         }
