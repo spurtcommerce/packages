@@ -123,7 +123,20 @@ export function authorizationChecker(connection: Connection, jwtSecret: string, 
             });
             if (user) {
                 return user;
-            }orderStatus
+            }
+
+            return undefined;
+        }
+
+        const validateUserGroup = async (id: number) => {
+            const group = await connection.getRepository('UserGroup').findOne({
+                where: {
+                    groupId: id,
+                },
+            });
+            if (group) {
+                return group;
+            }
             return undefined;
         }
 
