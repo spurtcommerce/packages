@@ -3,7 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.vendorProductList = void 0;
 const tslib_1 = require("tslib");
 const vendor_service_1 = require("./service/vendor-service");
-const vendorProductList = (_connection, limit, offset, keyword, sku, status, approvalFlag, price, productName, vendorName, updatedOn, sortBy, sortOrder, count, vendorId) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const vendorProductList = (_connection, pluginModule, limit, offset, keyword, sku, status, approvalFlag, price, productName, vendorName, updatedOn, sortBy, sortOrder, count, vendorId) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+    const pluginService = yield _connection.getRepository('Plugins');
     const productToCategoryService = yield _connection.getRepository('ProductToCategory');
     const categoryService = yield _connection.getRepository('Category');
     const selects = ['VendorProducts.vendorProductId as vendorProductId',
@@ -155,6 +156,18 @@ const vendorProductList = (_connection, limit, offset, keyword, sku, status, app
         };
     }
     const vendorProductList = yield (0, vendor_service_1.vendorProductListByQueryBuilder)(_connection, limit, offset, selects, whereCondition, searchConditions, relations, groupBy, sort, price, false, true);
+    let allPricing = [];
+    let varientSku = [];
+    if (pluginModule.includes('ProductPriceGroup')) {
+        const vendorPriceGroupDetailService = yield _connection.getRepository('VendorPriceGroupDetail');
+        allPricing = yield vendorPriceGroupDetailService.find({
+            relations: ['vendorPriceGroup', 'skuDetail'],
+        });
+    }
+    if (pluginModule.includes('ProductVariants')) {
+        const productVarientOptionService = yield _connection.getRepository('ProductVarientOption');
+        varientSku = yield productVarientOptionService.find({});
+    }
     const productList = vendorProductList.map((value) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
         const temp = value;
         const categories = yield productToCategoryService.find({
@@ -194,6 +207,16 @@ const vendorProductList = (_connection, limit, offset, keyword, sku, status, app
         }
         else {
             temp.earnings = '';
+        }
+        if (pluginModule.includes('ProductPriceGroup') && (yield pluginService.findOne({ where: { slugName: 'product-price-group', pluginStatus: 1 } }))) {
+            if (value.isSimplified === 0) {
+                const varientSkuIds = varientSku.filter((variantSku) => variantSku.productId === value.productId).map((sku) => sku.skuId);
+                temp.productPricing = allPricing.filter((item) => +varientSkuIds.includes(+item.skuId));
+            }
+            else {
+                const pricing = allPricing.filter((item) => value.skuId === item.skuId);
+                temp.productPricing = pricing;
+            }
         }
         return temp;
     }));

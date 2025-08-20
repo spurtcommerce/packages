@@ -50,6 +50,7 @@ export const orderCreate = async (
     const vendorOrderLogService = _connection.getRepository('VendorOrderLog');
     const vendorInvoiceService = _connection.getRepository('VendorInvoice');
     const vendorInvoiceItemService = _connection.getRepository('VendorInvoiceItem');
+    const addressService = _connection.getRepository('Address');
 
     const newCustomerMail = {} as any;
     const codAdminMail = {} as any;
@@ -264,6 +265,26 @@ export const orderCreate = async (
                 newUser.createdDate = moment().format('YYYY-MM-DD HH:mm:ss');
                 newUser.modifiedDate = moment().format('YYYY-MM-DD HH:mm:ss');
                 const resultDatas: any = await customerService.save(newUser);
+                
+                const newAddress = {} as any;
+                newAddress.firstName = checkoutParam.shippingFirstName;
+                newAddress.lastName = checkoutParam.shippingLastName ?? '';
+                newAddress.customerId = resultDatas.id;
+                newAddress.address1 = checkoutParam.shippingAddress_1;
+                newAddress.address2 = checkoutParam.shippingAddress_2;
+                newAddress.city = checkoutParam.shippingCity;
+                newAddress.state = checkoutParam.shippingZone ?? '';
+                newAddress.zoneId = checkoutParam.state ?? 0;
+                newAddress.countryId = checkoutParam.shippingCountryId;
+                newAddress.postcode = checkoutParam.shippingPostCode;
+                // 0 > delivery address 1 > billing address
+                newAddress.addressType = 0;
+                newAddress.company = checkoutParam.shippingCompany ?? '';
+                newAddress.landmark = '';
+                newAddress.phoneNo = checkoutParam.phoneNumber;
+
+                const addressValue = await addressService.save(newAddress);
+                console.log(addressValue, 'kjbsdajnkjn')
                 const emailContents: any = await emailTemplateService.findOne(1);
                 const message = emailContents.content.replace('{name}', resultDatas.firstName);
                 const redirectUrl = payload.storeRedirectUrl;

@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.categoryListByQueryBuilder = void 0;
 const tslib_1 = require("tslib");
 const typeorm_1 = require("typeorm");
-const categoryListByQueryBuilder = (_connection_1, limit_1, offset_1, ...args_1) => tslib_1.__awaiter(void 0, [_connection_1, limit_1, offset_1, ...args_1], void 0, function* (_connection, limit, offset, select = [], whereConditions = [], searchConditions = [], relations = [], groupBy = [], sort = [], count = false, rawQuery = false) {
+const categoryListByQueryBuilder = (_connection_1, limit_1, offset_1, ...args_1) => tslib_1.__awaiter(void 0, [_connection_1, limit_1, offset_1, ...args_1], void 0, function* (_connection, limit, offset, select = [], whereConditions = [], searchConditions = [], relations = [], groupBy = [], having = [], sort = [], count = false, rawQuery = false) {
     const query = yield _connection.getRepository('CategoryPath').createQueryBuilder();
     // Select
     if (select && select.length > 0) {
@@ -93,6 +93,14 @@ const categoryListByQueryBuilder = (_connection_1, limit_1, offset_1, ...args_1)
                 query.addGroupBy(item.name);
             }
             i++;
+        });
+    }
+    // Having
+    if (having && having.length > 0) {
+        having.forEach((item) => {
+            if (item.op === '<=') {
+                query.having(item.name + item.op + item.value);
+            }
         });
     }
     // orderBy

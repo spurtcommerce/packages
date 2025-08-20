@@ -48,7 +48,7 @@ declare const productCreate: (payload: any, _connection: any) => Promise<{
     status: number;
     message: string;
     data?: object;
-}>, categoryList: (_connection: import("typeorm").Connection, limit: number, offset: number, keyword: string, status: string, name: string, sortOrder: number, industryId: number) => Promise<{
+}>, categoryList: (_connection: import("typeorm").Connection, limit: number, offset: number, keyword: string, status: string, name: string, sortOrder: number, levelFilter: number, industryId: number) => Promise<{
     status: number;
     message: string;
     data: number | any[];

@@ -48,6 +48,13 @@ export const categoryCreate = async (
         order: { level: 'ASC' },
     });
 
+    if (getAllPath.length >= 3) {
+        return {
+            status: 1,
+            message: 'Category can only be mapped up to 3 levels. More than 3 levels are not allowed.',
+        };
+    }
+
     let level = 0;
     for (const path of getAllPath) {
         const CategoryPathLoop = {} as any;
@@ -79,6 +86,7 @@ export const categoryList = async (
     status: string,
     name: string,
     sortOrder: number,
+    levelFilter: number,
     industryId: number,
 ) => {
     const select = [
@@ -143,6 +151,15 @@ export const categoryList = async (
         });
     }
 
+    const havingConditions = [];
+    if (levelFilter) {
+        havingConditions.push({
+            name: 'MAX(CategoryPath.level)',
+            op: '<=',
+            value: 1,
+        });
+    }
+
     const sort = [];
     if (sortOrder) {
         sort.push({
@@ -155,7 +172,7 @@ export const categoryList = async (
             order: 'DESC',
         });
     }
-    const vendorCategoryList = await categoryListByQueryBuilder(_connection, limit, offset, select, whereConditions, searchConditions, relations, groupBy, sort, false, true);
+    const vendorCategoryList = await categoryListByQueryBuilder(_connection, limit, offset, select, whereConditions, searchConditions, relations, groupBy, havingConditions, sort, false, true);
     return {
         status: 1,
         message: 'Successfully got the vendor category list.',

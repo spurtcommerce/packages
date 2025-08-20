@@ -14,7 +14,7 @@ export declare const categoryCreate: (_connection: Connection, payload: {
     message: string;
     data?: object;
 }>;
-export declare const categoryList: (_connection: Connection, limit: number, offset: number, keyword: string, status: string, name: string, sortOrder: number, industryId: number) => Promise<{
+export declare const categoryList: (_connection: Connection, limit: number, offset: number, keyword: string, status: string, name: string, sortOrder: number, levelFilter: number, industryId: number) => Promise<{
     status: number;
     message: string;
     data: number | any[];

@@ -28,6 +28,12 @@ const categoryCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 
         where: { categoryId: payload.parentInt },
         order: { level: 'ASC' },
     });
+    if (getAllPath.length >= 3) {
+        return {
+            status: 1,
+            message: 'Category can only be mapped up to 3 levels. More than 3 levels are not allowed.',
+        };
+    }
     let level = 0;
     for (const path of getAllPath) {
         const CategoryPathLoop = {};
@@ -49,7 +55,7 @@ const categoryCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 
     };
 });
 exports.categoryCreate = categoryCreate;
-const categoryList = (_connection, limit, offset, keyword, status, name, sortOrder, industryId) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const categoryList = (_connection, limit, offset, keyword, status, name, sortOrder, levelFilter, industryId) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
     const select = [
         'CategoryPath.categoryId as categoryId',
         'category.sortOrder as sortOrder',
@@ -106,6 +112,14 @@ const categoryList = (_connection, limit, offset, keyword, status, name, sortOrd
             value: name,
         });
     }
+    const havingConditions = [];
+    if (levelFilter) {
+        havingConditions.push({
+            name: 'MAX(CategoryPath.level)',
+            op: '<=',
+            value: 1,
+        });
+    }
     const sort = [];
     if (sortOrder) {
         sort.push({
@@ -119,7 +133,7 @@ const categoryList = (_connection, limit, offset, keyword, status, name, sortOrd
             order: 'DESC',
         });
     }
-    const vendorCategoryList = yield (0, category_service_1.categoryListByQueryBuilder)(_connection, limit, offset, select, whereConditions, searchConditions, relations, groupBy, sort, false, true);
+    const vendorCategoryList = yield (0, category_service_1.categoryListByQueryBuilder)(_connection, limit, offset, select, whereConditions, searchConditions, relations, groupBy, havingConditions, sort, false, true);
     return {
         status: 1,
         message: 'Successfully got the vendor category list.',

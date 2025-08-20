@@ -3,6 +3,7 @@ import { getOrderEarnings, vendorProductListByQueryBuilder } from "./service/ven
 
 export const vendorProductList = async (
     _connection: Connection,
+    pluginModule: string[],
     limit: number,
     offset: number,
     keyword: string,
@@ -23,6 +24,7 @@ export const vendorProductList = async (
     data?: any
 }> => {
 
+    const pluginService = await _connection.getRepository('Plugins');
     const productToCategoryService = await _connection.getRepository('ProductToCategory');
     const categoryService = await _connection.getRepository('Category');
 
@@ -183,6 +185,22 @@ export const vendorProductList = async (
         };
     }
     const vendorProductList: any = await vendorProductListByQueryBuilder(_connection, limit, offset, selects, whereCondition, searchConditions, relations, groupBy, sort, price, false, true);
+
+    let allPricing: any = [];
+    let varientSku: any = [];
+    if (pluginModule.includes('ProductPriceGroup')) {
+        const vendorPriceGroupDetailService = await _connection.getRepository('VendorPriceGroupDetail');
+
+        allPricing = await vendorPriceGroupDetailService.find({
+            relations: ['vendorPriceGroup', 'skuDetail'],
+        });
+    }
+    if (pluginModule.includes('ProductVariants')) {
+        const productVarientOptionService = await _connection.getRepository('ProductVarientOption');
+
+        varientSku = await productVarientOptionService.find({});
+    }
+
     const productList = vendorProductList.map(async (value: any) => {
         const temp: any = value;
         const categories = await productToCategoryService.find({
@@ -213,11 +231,22 @@ export const vendorProductList = async (
             temp.pricerefer = '';
             temp.flag = '';
         }
+
         const orderProduct = await getOrderEarnings(_connection, value.productId);
         if (orderProduct) {
             temp.earnings = orderProduct.productPriceTotal;
         } else {
             temp.earnings = '';
+        }
+
+        if (pluginModule.includes('ProductPriceGroup') && await pluginService.findOne({ where: { slugName: 'product-price-group', pluginStatus: 1 } })) {
+            if (value.isSimplified === 0) {
+                const varientSkuIds: any = varientSku.filter((variantSku) => variantSku.productId === value.productId).map((sku) => sku.skuId);
+                temp.productPricing = allPricing.filter((item) => +varientSkuIds.includes(+item.skuId));
+            } else {
+                const pricing = allPricing.filter((item) => value.skuId === item.skuId);
+                temp.productPricing = pricing;
+            }
         }
         return temp;
     });

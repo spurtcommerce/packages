@@ -9,6 +9,7 @@ export const categoryListByQueryBuilder = async (
     searchConditions: any = [],
     relations: any = [],
     groupBy: any = [],
+    having: any = [],
     sort: any = [],
     count: number | boolean = false,
     rawQuery: boolean = false,
@@ -95,6 +96,14 @@ export const categoryListByQueryBuilder = async (
                 query.addGroupBy(item.name);
             }
             i++;
+        });
+    }
+    // Having
+    if (having && having.length > 0) {
+        having.forEach((item) => {
+            if (item.op === '<=') {
+                query.having(item.name + item.op + item.value);
+            }
         });
     }
     // orderBy

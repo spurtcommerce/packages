@@ -6,7 +6,7 @@ const order_service_1 = require("./service/order-service");
 const order_service_utils_1 = require("./service/order-service-utils");
 const moment_1 = tslib_1.__importDefault(require("moment"));
 const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-    var _a;
+    var _a, _b, _c, _d, _e;
     const orderService = _connection.getRepository('Order');
     const orderProductService = _connection.getRepository('OrderProduct');
     const orderTotalService = _connection.getRepository('OrderTotal');
@@ -34,6 +34,7 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
     const vendorOrderLogService = _connection.getRepository('VendorOrderLog');
     const vendorInvoiceService = _connection.getRepository('VendorInvoice');
     const vendorInvoiceItemService = _connection.getRepository('VendorInvoiceItem');
+    const addressService = _connection.getRepository('Address');
     const newCustomerMail = {};
     const codAdminMail = {};
     const codCustomerMail = {};
@@ -247,6 +248,24 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
                 newUser.createdDate = (0, moment_1.default)().format('YYYY-MM-DD HH:mm:ss');
                 newUser.modifiedDate = (0, moment_1.default)().format('YYYY-MM-DD HH:mm:ss');
                 const resultDatas = yield customerService.save(newUser);
+                const newAddress = {};
+                newAddress.firstName = checkoutParam.shippingFirstName;
+                newAddress.lastName = (_a = checkoutParam.shippingLastName) !== null && _a !== void 0 ? _a : '';
+                newAddress.customerId = resultDatas.id;
+                newAddress.address1 = checkoutParam.shippingAddress_1;
+                newAddress.address2 = checkoutParam.shippingAddress_2;
+                newAddress.city = checkoutParam.shippingCity;
+                newAddress.state = (_b = checkoutParam.shippingZone) !== null && _b !== void 0 ? _b : '';
+                newAddress.zoneId = (_c = checkoutParam.state) !== null && _c !== void 0 ? _c : 0;
+                newAddress.countryId = checkoutParam.shippingCountryId;
+                newAddress.postcode = checkoutParam.shippingPostCode;
+                // 0 > delivery address 1 > billing address
+                newAddress.addressType = 0;
+                newAddress.company = (_d = checkoutParam.shippingCompany) !== null && _d !== void 0 ? _d : '';
+                newAddress.landmark = '';
+                newAddress.phoneNo = checkoutParam.phoneNumber;
+                const addressValue = yield addressService.save(newAddress);
+                console.log(addressValue, 'kjbsdajnkjn');
                 const emailContents = yield emailTemplateService.findOne(1);
                 const message = emailContents.content.replace('{name}', resultDatas.firstName);
                 const redirectUrl = payload.storeRedirectUrl;
@@ -323,7 +342,7 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
     newOrder.currencyCode = currencyVal ? currencyVal.code : '';
     newOrder.currencyValue = currencyVal ? currencyVal.value : '';
     newOrder.currencySymbolLeft = currencyVal ? currencyVal.symbolLeft : '';
-    newOrder.currencySymbolRight = (_a = currencyVal === null || currencyVal === void 0 ? void 0 : currencyVal.symbolRight) !== null && _a !== void 0 ? _a : '';
+    newOrder.currencySymbolRight = (_e = currencyVal === null || currencyVal === void 0 ? void 0 : currencyVal.symbolRight) !== null && _e !== void 0 ? _e : '';
     newOrder.currencyValue = currencyVal ? currencyVal.value : '';
     newOrder.paymentAddressFormat = checkoutParam.shippingAddressFormat;
     newOrder.createdDate = (0, moment_1.default)().format('YYYY-MM-DD HH:mm:ss');
