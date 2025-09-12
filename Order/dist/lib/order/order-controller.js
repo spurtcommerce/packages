@@ -6,7 +6,7 @@ const order_service_1 = require("./service/order-service");
 const order_service_utils_1 = require("./service/order-service-utils");
 const moment_1 = tslib_1.__importDefault(require("moment"));
 const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e;
+    var _a, _b, _c, _d, _e, _f;
     const orderService = _connection.getRepository('Order');
     const orderProductService = _connection.getRepository('OrderProduct');
     const orderTotalService = _connection.getRepository('OrderTotal');
@@ -149,14 +149,14 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
         obj.taxValue = taxValue;
         obj.tirePrice = tirePrice;
         obj.productTire = productTire;
-        obj.quantity = val.quantity;
+        obj.quantity = (_a = val.quantity) !== null && _a !== void 0 ? _a : 1;
         obj.priceGroupDetailId = priceGroupDetailId;
         dynamicData[val.skuName] = obj;
     }
     for (const val of orderProducts) {
         const product = yield productService.findOne(val.productId);
         const sku = yield skuService.findOne({ where: { skuName: val.skuName } });
-        if (product.hasStock === 1) {
+        if (product.productType === 'physical' && product.hasStock === 1) {
             if (!(+sku.minQuantityAllowedCart <= +val.quantity)) {
                 return {
                     status: 0,
@@ -185,6 +185,12 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
     }
     const plugin = yield pluginService.findOne({ where: { id: checkoutParam.paymentMethod } });
     if (plugin === undefined) {
+        return {
+            status: 0,
+            message: 'Payment method is invalid',
+        };
+    }
+    if (checkoutParam.productType !== 'physical' && plugin.pluginName === 'CashOnDelivery') {
         return {
             status: 0,
             message: 'Payment method is invalid',
@@ -250,22 +256,21 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
                 const resultDatas = yield customerService.save(newUser);
                 const newAddress = {};
                 newAddress.firstName = checkoutParam.shippingFirstName;
-                newAddress.lastName = (_a = checkoutParam.shippingLastName) !== null && _a !== void 0 ? _a : '';
+                newAddress.lastName = (_b = checkoutParam.shippingLastName) !== null && _b !== void 0 ? _b : '';
                 newAddress.customerId = resultDatas.id;
                 newAddress.address1 = checkoutParam.shippingAddress_1;
                 newAddress.address2 = checkoutParam.shippingAddress_2;
                 newAddress.city = checkoutParam.shippingCity;
-                newAddress.state = (_b = checkoutParam.shippingZone) !== null && _b !== void 0 ? _b : '';
-                newAddress.zoneId = (_c = checkoutParam.state) !== null && _c !== void 0 ? _c : 0;
+                newAddress.state = (_c = checkoutParam.shippingZone) !== null && _c !== void 0 ? _c : '';
+                newAddress.zoneId = (_d = checkoutParam.state) !== null && _d !== void 0 ? _d : 0;
                 newAddress.countryId = checkoutParam.shippingCountryId;
                 newAddress.postcode = checkoutParam.shippingPostCode;
                 // 0 > delivery address 1 > billing address
                 newAddress.addressType = 0;
-                newAddress.company = (_d = checkoutParam.shippingCompany) !== null && _d !== void 0 ? _d : '';
+                newAddress.company = (_e = checkoutParam.shippingCompany) !== null && _e !== void 0 ? _e : '';
                 newAddress.landmark = '';
                 newAddress.phoneNo = checkoutParam.phoneNumber;
-                const addressValue = yield addressService.save(newAddress);
-                console.log(addressValue, 'kjbsdajnkjn');
+                yield addressService.save(newAddress);
                 const emailContents = yield emailTemplateService.findOne(1);
                 const message = emailContents.content.replace('{name}', resultDatas.firstName);
                 const redirectUrl = payload.storeRedirectUrl;
@@ -296,24 +301,39 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
     }
     newOrder.email = checkoutParam.emailId;
     newOrder.telephone = checkoutParam.phoneNumber;
-    newOrder.shippingFirstname = checkoutParam.shippingFirstName;
-    newOrder.shippingLastname = checkoutParam.shippingLastName;
-    newOrder.shippingAddress1 = checkoutParam.shippingAddress_1;
-    newOrder.shippingAddress2 = checkoutParam.shippingAddress_2;
-    newOrder.shippingCompany = checkoutParam.shippingCompany;
-    newOrder.shippingCity = checkoutParam.shippingCity;
-    newOrder.shippingZone = checkoutParam.shippingZone;
-    newOrder.shippingCountryId = checkoutParam.shippingCountryId;
-    const country = yield countryService.findOne({
-        where: {
-            countryId: checkoutParam.shippingCountryId,
-        },
-    });
-    if (country) {
-        newOrder.shippingCountry = country.name;
+    if (checkoutParam.productType === 'physical') {
+        newOrder.shippingFirstname = checkoutParam.shippingFirstName;
+        newOrder.shippingLastname = checkoutParam.shippingLastName;
+        newOrder.shippingAddress1 = checkoutParam.shippingAddress_1;
+        newOrder.shippingAddress2 = checkoutParam.shippingAddress_2;
+        newOrder.shippingCompany = checkoutParam.shippingCompany;
+        newOrder.shippingCity = checkoutParam.shippingCity;
+        newOrder.shippingZone = checkoutParam.shippingZone;
+        newOrder.shippingCountryId = checkoutParam.shippingCountryId;
+        const country = yield countryService.findOne({
+            where: {
+                countryId: checkoutParam.shippingCountryId,
+            },
+        });
+        if (country) {
+            newOrder.shippingCountry = country.name;
+        }
+        newOrder.shippingPostcode = checkoutParam.shippingPostCode;
+        newOrder.shippingAddressFormat = checkoutParam.shippingAddressFormat;
     }
-    newOrder.shippingPostcode = checkoutParam.shippingPostCode;
-    newOrder.shippingAddressFormat = checkoutParam.shippingAddressFormat;
+    else {
+        newOrder.shippingFirstname = '';
+        newOrder.shippingLastname = '';
+        newOrder.shippingAddress1 = '';
+        newOrder.shippingAddress2 = '';
+        newOrder.shippingCompany = '';
+        newOrder.shippingCity = '';
+        newOrder.shippingZone = '';
+        newOrder.shippingCountryId = 0;
+        newOrder.shippingCountry = '';
+        newOrder.shippingPostcode = '';
+        newOrder.shippingAddressFormat = '';
+    }
     newOrder.paymentFirstname = checkoutParam.paymentFirstName;
     newOrder.paymentLastname = checkoutParam.paymentLastName;
     newOrder.paymentAddress1 = checkoutParam.paymentAddress_1;
@@ -342,7 +362,7 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
     newOrder.currencyCode = currencyVal ? currencyVal.code : '';
     newOrder.currencyValue = currencyVal ? currencyVal.value : '';
     newOrder.currencySymbolLeft = currencyVal ? currencyVal.symbolLeft : '';
-    newOrder.currencySymbolRight = (_e = currencyVal === null || currencyVal === void 0 ? void 0 : currencyVal.symbolRight) !== null && _e !== void 0 ? _e : '';
+    newOrder.currencySymbolRight = (_f = currencyVal === null || currencyVal === void 0 ? void 0 : currencyVal.symbolRight) !== null && _f !== void 0 ? _f : '';
     newOrder.currencyValue = currencyVal ? currencyVal.value : '';
     newOrder.paymentAddressFormat = checkoutParam.shippingAddressFormat;
     newOrder.createdDate = (0, moment_1.default)().format('YYYY-MM-DD HH:mm:ss');
@@ -360,12 +380,13 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
         const dynamicPrices = dynamicData[orderProduct[i].skuName];
         const productDetails = {};
         productDetails.productId = orderProduct[i].productId;
+        const productData = yield productService.findOne(orderProduct[i].productId);
         const nwDate = new Date();
         const odrDate = nwDate.getFullYear() + ('0' + (nwDate.getMonth() + 1)).slice(-2) + ('0' + nwDate.getDate()).slice(-2);
         productDetails.orderProductPrefixId = orderData.invoicePrefix.concat('-' + odrDate + orderData.orderId) + j;
         productDetails.name = orderProduct[i].name;
         productDetails.orderId = orderData.orderId;
-        productDetails.quantity = orderProduct[i].quantity;
+        productDetails.quantity = productData.productType === 'physical' ? orderProduct[i].quantity : 1;
         productDetails.productPrice = dynamicPrices.price;
         productDetails.basePrice = dynamicPrices.skuPrice;
         productDetails.discountAmount = parseFloat(dynamicPrices.skuPrice) - parseFloat(dynamicPrices.tirePrice);
@@ -462,14 +483,13 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
                 yield vendorInvoiceItemService.save(newVendorInvoiceItem);
             }
         }
-        const productImageData = yield productService.findOne(productInformation.productId);
         // for stock management
-        if (productImageData.hasStock === 1) {
+        if (productData.productType === 'physical' && productData.hasStock === 1) {
             const product = yield skuService.findOne({ where: { skuName: productInformation.skuName } });
             product.quantity = +product.quantity - +productInformation.quantity;
             const prod = yield skuService.save(product);
-            if (productImageData.isSimplified === 0) {
-                const findSku = yield skuService.findOne({ where: { id: productImageData.skuId } });
+            if (productData.isSimplified === 0) {
+                const findSku = yield skuService.findOne({ where: { skuName: productInformation.skuName } });
                 findSku.quantity = +findSku.quantity - +productInformation.quantity;
                 yield skuService.save(findSku);
             }
@@ -484,7 +504,7 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
                 const findProductNotifyTemp = yield emailTemplateService.findOne(46);
                 if (findVendorProduct) {
                     const customer = yield customerService.findOne({ where: { id: findVendorProduct.vendor.customerId } });
-                    const vendorMessage = findProductNotifyTemp.content.replace(/{name}/g, customer.firstName + ' ' + customer.lastName).replace(/{productName}/g, productImageData.name);
+                    const vendorMessage = findProductNotifyTemp.content.replace(/{name}/g, customer.firstName + ' ' + customer.lastName).replace(/{productName}/g, productData.name);
                     const vendorMailContents = {};
                     vendorMailContents.logo = logo;
                     vendorMailContents.productDetailData = undefined;
@@ -508,13 +528,13 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
         }
         let productImageDetail;
         productImageDetail = yield productImageService.findOne({ where: { productId: productInformation.productId, defaultImage: 1 } });
-        productImageData.productInformationData = productInformation;
-        productImageData.productImage = productImageDetail;
+        productData.productInformationData = productInformation;
+        productData.productImage = productImageDetail;
         totalProductAmount = yield orderProductService.find({ where: { productId: orderProduct[i].productId, orderId: orderData.orderId, orderProductId: productInformation.orderProductId } });
         for (n = 0; n < totalProductAmount.length; n++) {
             totalAmount += +totalProductAmount[n].total;
         }
-        productDetailData.push(productImageData);
+        productDetailData.push(productData);
         j++;
     }
     // Coupon Code Plugin

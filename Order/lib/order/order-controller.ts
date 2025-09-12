@@ -15,7 +15,7 @@ export const orderCreate = async (
         vendorRedirectUrl: string,
         baseUrl: string,
         dirName: string,
-        siteId: number
+        siteId: number,
     }
 ): Promise<{
     status: number,
@@ -168,14 +168,14 @@ export const orderCreate = async (
         obj.taxValue = taxValue;
         obj.tirePrice = tirePrice;
         obj.productTire = productTire;
-        obj.quantity = val.quantity;
+        obj.quantity = val.quantity ?? 1;
         obj.priceGroupDetailId = priceGroupDetailId;
         dynamicData[val.skuName] = obj;
     }
     for (const val of orderProducts) {
         const product: any = await productService.findOne(val.productId);
         const sku: any = await skuService.findOne({ where: { skuName: val.skuName } });
-        if (product.hasStock === 1) {
+        if (product.productType === 'physical' && product.hasStock === 1) {
             if (!(+sku.minQuantityAllowedCart <= +val.quantity)) {
                 return {
                     status: 0,
@@ -203,6 +203,12 @@ export const orderCreate = async (
     }
     const plugin: any = await pluginService.findOne({ where: { id: checkoutParam.paymentMethod } });
     if (plugin === undefined) {
+        return {
+            status: 0,
+            message: 'Payment method is invalid',
+        };
+    }
+    if (checkoutParam.productType !== 'physical' && plugin.pluginName === 'CashOnDelivery') {
         return {
             status: 0,
             message: 'Payment method is invalid',
@@ -265,7 +271,6 @@ export const orderCreate = async (
                 newUser.createdDate = moment().format('YYYY-MM-DD HH:mm:ss');
                 newUser.modifiedDate = moment().format('YYYY-MM-DD HH:mm:ss');
                 const resultDatas: any = await customerService.save(newUser);
-                
                 const newAddress = {} as any;
                 newAddress.firstName = checkoutParam.shippingFirstName;
                 newAddress.lastName = checkoutParam.shippingLastName ?? '';
@@ -283,8 +288,7 @@ export const orderCreate = async (
                 newAddress.landmark = '';
                 newAddress.phoneNo = checkoutParam.phoneNumber;
 
-                const addressValue = await addressService.save(newAddress);
-                console.log(addressValue, 'kjbsdajnkjn')
+                await addressService.save(newAddress);
                 const emailContents: any = await emailTemplateService.findOne(1);
                 const message = emailContents.content.replace('{name}', resultDatas.firstName);
                 const redirectUrl = payload.storeRedirectUrl;
@@ -316,24 +320,39 @@ export const orderCreate = async (
     }
     newOrder.email = checkoutParam.emailId;
     newOrder.telephone = checkoutParam.phoneNumber;
-    newOrder.shippingFirstname = checkoutParam.shippingFirstName;
-    newOrder.shippingLastname = checkoutParam.shippingLastName;
-    newOrder.shippingAddress1 = checkoutParam.shippingAddress_1;
-    newOrder.shippingAddress2 = checkoutParam.shippingAddress_2;
-    newOrder.shippingCompany = checkoutParam.shippingCompany;
-    newOrder.shippingCity = checkoutParam.shippingCity;
-    newOrder.shippingZone = checkoutParam.shippingZone;
-    newOrder.shippingCountryId = checkoutParam.shippingCountryId;
-    const country: any = await countryService.findOne({
-        where: {
-            countryId: checkoutParam.shippingCountryId,
-        },
-    });
-    if (country) {
-        newOrder.shippingCountry = country.name;
+
+    if (checkoutParam.productType === 'physical') {
+        newOrder.shippingFirstname = checkoutParam.shippingFirstName;
+        newOrder.shippingLastname = checkoutParam.shippingLastName;
+        newOrder.shippingAddress1 = checkoutParam.shippingAddress_1;
+        newOrder.shippingAddress2 = checkoutParam.shippingAddress_2;
+        newOrder.shippingCompany = checkoutParam.shippingCompany;
+        newOrder.shippingCity = checkoutParam.shippingCity;
+        newOrder.shippingZone = checkoutParam.shippingZone;
+        newOrder.shippingCountryId = checkoutParam.shippingCountryId;
+        const country: any = await countryService.findOne({
+            where: {
+                countryId: checkoutParam.shippingCountryId,
+            },
+        });
+        if (country) {
+            newOrder.shippingCountry = country.name;
+        }
+        newOrder.shippingPostcode = checkoutParam.shippingPostCode;
+        newOrder.shippingAddressFormat = checkoutParam.shippingAddressFormat;
+    } else {
+        newOrder.shippingFirstname = '';
+        newOrder.shippingLastname = '';
+        newOrder.shippingAddress1 = '';
+        newOrder.shippingAddress2 = '';
+        newOrder.shippingCompany = '';
+        newOrder.shippingCity = '';
+        newOrder.shippingZone = '';
+        newOrder.shippingCountryId = 0;
+        newOrder.shippingCountry = '';
+        newOrder.shippingPostcode = '';
+        newOrder.shippingAddressFormat = '';
     }
-    newOrder.shippingPostcode = checkoutParam.shippingPostCode;
-    newOrder.shippingAddressFormat = checkoutParam.shippingAddressFormat;
     newOrder.paymentFirstname = checkoutParam.paymentFirstName;
     newOrder.paymentLastname = checkoutParam.paymentLastName;
     newOrder.paymentAddress1 = checkoutParam.paymentAddress_1;
@@ -380,12 +399,13 @@ export const orderCreate = async (
         const dynamicPrices = dynamicData[orderProduct[i].skuName];
         const productDetails = {} as any;
         productDetails.productId = orderProduct[i].productId;
+        const productData: any = await productService.findOne(orderProduct[i].productId);
         const nwDate = new Date();
         const odrDate = nwDate.getFullYear() + ('0' + (nwDate.getMonth() + 1)).slice(-2) + ('0' + nwDate.getDate()).slice(-2);
         productDetails.orderProductPrefixId = orderData.invoicePrefix.concat('-' + odrDate + orderData.orderId) + j;
         productDetails.name = orderProduct[i].name;
         productDetails.orderId = orderData.orderId;
-        productDetails.quantity = orderProduct[i].quantity;
+        productDetails.quantity = productData.productType === 'physical' ? orderProduct[i].quantity : 1;
         productDetails.productPrice = dynamicPrices.price;
         productDetails.basePrice = dynamicPrices.skuPrice;
         productDetails.discountAmount = parseFloat(dynamicPrices.skuPrice) - parseFloat(dynamicPrices.tirePrice);
@@ -485,14 +505,13 @@ export const orderCreate = async (
             }
         }
 
-        const productImageData: any = await productService.findOne(productInformation.productId);
         // for stock management
-        if (productImageData.hasStock === 1) {
+        if (productData.productType === 'physical' && productData.hasStock === 1) {
             const product: any = await skuService.findOne({ where: { skuName: productInformation.skuName } });
             product.quantity = +product.quantity - +productInformation.quantity;
             const prod: any = await skuService.save(product);
-            if (productImageData.isSimplified === 0) {
-                const findSku: any = await skuService.findOne({ where: { id: productImageData.skuId } });
+            if (productData.isSimplified === 0) {
+                const findSku: any = await skuService.findOne({ where: { skuName: productInformation.skuName } });
                 findSku.quantity = +findSku.quantity - +productInformation.quantity;
                 await skuService.save(findSku);
             }
@@ -507,7 +526,7 @@ export const orderCreate = async (
                 const findProductNotifyTemp: any = await emailTemplateService.findOne(46);
                 if (findVendorProduct) {
                     const customer: any = await customerService.findOne({ where: { id: findVendorProduct.vendor.customerId } });
-                    const vendorMessage = findProductNotifyTemp.content.replace(/{name}/g, customer.firstName + ' ' + customer.lastName).replace(/{productName}/g, productImageData.name);
+                    const vendorMessage = findProductNotifyTemp.content.replace(/{name}/g, customer.firstName + ' ' + customer.lastName).replace(/{productName}/g, productData.name);
                     const vendorMailContents: any = {};
                     vendorMailContents.logo = logo;
                     vendorMailContents.productDetailData = undefined;
@@ -531,13 +550,13 @@ export const orderCreate = async (
         }
         let productImageDetail;
         productImageDetail = await productImageService.findOne({ where: { productId: productInformation.productId, defaultImage: 1 } });
-        productImageData.productInformationData = productInformation;
-        productImageData.productImage = productImageDetail;
+        productData.productInformationData = productInformation;
+        productData.productImage = productImageDetail;
         totalProductAmount = await orderProductService.find({ where: { productId: orderProduct[i].productId, orderId: orderData.orderId, orderProductId: productInformation.orderProductId } });
         for (n = 0; n < totalProductAmount.length; n++) {
             totalAmount += +totalProductAmount[n].total;
         }
-        productDetailData.push(productImageData);
+        productDetailData.push(productData);
         j++;
     }
 
