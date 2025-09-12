@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.vendorProductList = void 0;
 const tslib_1 = require("tslib");
 const vendor_service_1 = require("./service/vendor-service");
-const vendorProductList = (_connection, pluginModule, limit, offset, keyword, sku, status, approvalFlag, price, productName, vendorName, updatedOn, sortBy, sortOrder, count, vendorId) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const vendorProductList = (_connection, pluginModule, limit, offset, keyword, sku, status, approvalFlag, price, productName, vendorName, isVisible, updatedOn, sortBy, sortOrder, count, vendorId) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
     const pluginService = yield _connection.getRepository('Plugins');
     const productToCategoryService = yield _connection.getRepository('ProductToCategory');
     const categoryService = yield _connection.getRepository('Category');
@@ -31,6 +31,11 @@ const vendorProductList = (_connection, pluginModule, limit, offset, keyword, sk
         'VendorProducts.modifiedDate as modifiedDate',
         'product.keywords as keywords',
         'product.isSimplified as isSimplified',
+        'product.isSpecification as isSpecification',
+        'product.productType as productType',
+        'product.isSubscription as isSubscription',
+        'product.isGrouped as isGrouped',
+        'product.isVisible as isVisible',
         'product.attributeKeyword as attributeKeyword',
         '(SELECT pi.image as image FROM product_image pi WHERE pi.product_id = product.productId AND pi.default_image = 1 LIMIT 1) as image',
         '(SELECT pi.container_name as containerName FROM product_image pi WHERE pi.product_id = product.productId AND pi.default_image = 1 LIMIT 1) as containerName',
@@ -40,7 +45,16 @@ const vendorProductList = (_connection, pluginModule, limit, offset, keyword, sk
         '(SELECT price FROM product_discount pd2 WHERE pd2.product_id = product.product_id AND pd2.sku_id = skuId AND ((pd2.date_start <= CURDATE() AND  pd2.date_end >= CURDATE())) ' +
             'ORDER BY pd2.priority ASC, pd2.price ASC LIMIT 1) AS productDiscount',
         '(SELECT price FROM product_special ps WHERE ps.product_id = product.product_id AND ps.sku_id = skuId AND ((ps.date_start <= CURDATE() AND ps.date_end >= CURDATE()))' + ' ' + 'ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS productSpecial'];
-    const whereCondition = [];
+    const whereCondition = [{
+            name: 'vendor.vendorId',
+            op: 'and',
+            value: vendorId,
+        },
+        {
+            name: 'VendorProducts.reuse',
+            op: 'IS NULL',
+            value: '',
+        }];
     const relations = [];
     const groupBy = [];
     relations.push({
@@ -60,6 +74,13 @@ const vendorProductList = (_connection, pluginModule, limit, offset, keyword, sk
             value: +status,
         });
     }
+    if (isVisible && isVisible !== '') {
+        whereCondition.push({
+            name: 'product.isVisible',
+            op: 'and',
+            value: +isVisible,
+        });
+    }
     if (approvalFlag && approvalFlag !== '') {
         whereCondition.push({
             name: 'VendorProducts.approvalFlag',
@@ -67,15 +88,6 @@ const vendorProductList = (_connection, pluginModule, limit, offset, keyword, sk
             value: +approvalFlag,
         });
     }
-    whereCondition.push({
-        name: 'vendor.vendorId',
-        op: 'and',
-        value: vendorId,
-    }, {
-        name: 'VendorProducts.reuse',
-        op: 'IS NULL',
-        value: '',
-    });
     const searchConditions = [];
     if (keyword) {
         searchConditions.push({

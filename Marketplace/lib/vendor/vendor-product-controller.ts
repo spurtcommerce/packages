@@ -13,6 +13,7 @@ export const vendorProductList = async (
     price: number,
     productName: string,
     vendorName: string,
+    isVisible: string,
     updatedOn: string,
     sortBy: string,
     sortOrder: string,
@@ -52,6 +53,11 @@ export const vendorProductList = async (
         'VendorProducts.modifiedDate as modifiedDate',
         'product.keywords as keywords',
         'product.isSimplified as isSimplified',
+        'product.isSpecification as isSpecification',
+        'product.productType as productType',
+        'product.isSubscription as isSubscription',
+        'product.isGrouped as isGrouped',
+        'product.isVisible as isVisible',
         'product.attributeKeyword as attributeKeyword',
         '(SELECT pi.image as image FROM product_image pi WHERE pi.product_id = product.productId AND pi.default_image = 1 LIMIT 1) as image',
         '(SELECT pi.container_name as containerName FROM product_image pi WHERE pi.product_id = product.productId AND pi.default_image = 1 LIMIT 1) as containerName',
@@ -61,7 +67,16 @@ export const vendorProductList = async (
         '(SELECT price FROM product_discount pd2 WHERE pd2.product_id = product.product_id AND pd2.sku_id = skuId AND ((pd2.date_start <= CURDATE() AND  pd2.date_end >= CURDATE())) ' +
         'ORDER BY pd2.priority ASC, pd2.price ASC LIMIT 1) AS productDiscount',
         '(SELECT price FROM product_special ps WHERE ps.product_id = product.product_id AND ps.sku_id = skuId AND ((ps.date_start <= CURDATE() AND ps.date_end >= CURDATE()))' + ' ' + 'ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS productSpecial'];
-    const whereCondition = [];
+    const whereCondition = [{
+        name: 'vendor.vendorId',
+        op: 'and',
+        value: vendorId,
+    },
+    {
+        name: 'VendorProducts.reuse',
+        op: 'IS NULL',
+        value: '',
+    }];
     const relations = [];
     const groupBy = [];
     relations.push(
@@ -78,11 +93,19 @@ export const vendorProductList = async (
             aliasName: 'customer',
         }
     );
+
     if (status && status !== '') {
         whereCondition.push({
             name: 'product.isActive',
             op: 'and',
             value: +status,
+        });
+    }
+    if (isVisible && isVisible !== '') {
+        whereCondition.push({
+            name: 'product.isVisible',
+            op: 'and',
+            value: +isVisible,
         });
     }
     if (approvalFlag && approvalFlag !== '') {
@@ -92,18 +115,7 @@ export const vendorProductList = async (
             value: +approvalFlag,
         });
     }
-    whereCondition.push(
-        {
-            name: 'vendor.vendorId',
-            op: 'and',
-            value: vendorId,
-        },
-        {
-            name: 'VendorProducts.reuse',
-            op: 'IS NULL',
-            value: '',
-        }
-    );
+
     const searchConditions = [];
     if (keyword) {
         searchConditions.push({

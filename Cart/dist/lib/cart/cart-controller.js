@@ -41,31 +41,37 @@ const cartCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, v
                     message: 'Successfully removed from Cart',
                 };
             }
-            const qty = Number(findOption.quantity) + +cartParam.quantity;
-            if (product.hasStock === 1) {
-                if (!(sku.minQuantityAllowedCart <= qty)) {
-                    return {
-                        status: 0,
-                        message: 'Quantity should greater than min Quantity.',
-                    };
+            if (product.productType === 'physical') {
+                const qty = Number(findOption.quantity) + +cartParam.quantity;
+                if (product.hasStock === 1) {
+                    if (!(sku.minQuantityAllowedCart <= qty)) {
+                        return {
+                            status: 0,
+                            message: 'Quantity should greater than min Quantity.',
+                        };
+                    }
+                    else if (!(sku.maxQuantityAllowedCart >= qty)) {
+                        return {
+                            status: 0,
+                            message: 'Reached maximum quantity limit',
+                        };
+                    }
                 }
-                else if (!(sku.maxQuantityAllowedCart >= qty)) {
-                    return {
-                        status: 0,
-                        message: 'Reached maximum quantity limit',
-                    };
-                }
+                findOption.quantity = qty;
             }
-            findOption.quantity = qty;
+            else {
+                findOption.quantity = 1;
+            }
         }
         else {
-            findOption.quantity = cartParam.quantity;
+            findOption.quantity = product.productType === 'physical' ? cartParam.quantity : 1;
         }
         findOption.productPrice = cartParam.productPrice;
         findOption.total = +cartParam.quantity * +cartParam.productPrice;
         findOption.tirePrice = cartParam.tirePrice ? cartParam.tirePrice : 0;
         findOption.vendorId = payload.vendorId;
         findOption.skuName = cartParam.skuName;
+        findOption.productType = product.productType;
         findOption.createdDate = (0, moment_1.default)().format('YYYY-MM-DD HH:mm:ss');
         findOption.modifiedDate = (0, moment_1.default)().format('YYYY-MM-DD HH:mm:ss');
         yield customerCartService.save(findOption);
@@ -89,31 +95,34 @@ const cartCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, v
                 message: 'Successfully removed from Cart',
             };
         }
-        if (product.hasStock === 1) {
-            if (!(sku.minQuantityAllowedCart <= +cartParam.quantity)) {
-                return {
-                    status: 0,
-                    message: 'Quantity should greater than min Quantity.',
-                };
-            }
-            else if (!(sku.maxQuantityAllowedCart >= +cartParam.quantity)) {
-                return {
-                    status: 0,
-                    message: 'Reached maximum quantity limit',
-                };
+        if (product.productType === 'physical') {
+            if (product.hasStock === 1) {
+                if (!(sku.minQuantityAllowedCart <= +cartParam.quantity)) {
+                    return {
+                        status: 0,
+                        message: 'Quantity should greater than min Quantity.',
+                    };
+                }
+                else if (!(sku.maxQuantityAllowedCart >= +cartParam.quantity)) {
+                    return {
+                        status: 0,
+                        message: 'Reached maximum quantity limit',
+                    };
+                }
             }
         }
         const addCustomerCart = {};
         addCustomerCart.productId = cartParam.productId,
             addCustomerCart.name = product.name,
             addCustomerCart.customerId = cartParam.customerId,
-            addCustomerCart.quantity = cartParam.quantity,
+            addCustomerCart.quantity = product.productType === 'physical' ? cartParam.quantity : 1,
             addCustomerCart.productPrice = cartParam.productPrice,
             addCustomerCart.tirePrice = cartParam.tirePrice ? cartParam.tirePrice : 0,
             addCustomerCart.vendorId = payload.vendorId;
         addCustomerCart.total = +cartParam.quantity * +cartParam.productPrice,
             addCustomerCart.skuName = cartParam.skuName;
         addCustomerCart.ip = cartParam.ipAddress;
+        addCustomerCart.productType = product.productType;
         addCustomerCart.createdDate = (0, moment_1.default)().format('YYYY-MM-DD HH:mm:ss');
         addCustomerCart.modifiedDate = (0, moment_1.default)().format('YYYY-MM-DD HH:mm:ss');
         const val = yield customerCartService.save(addCustomerCart);
