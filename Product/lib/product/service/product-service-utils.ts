@@ -1,10 +1,10 @@
-import { Connection } from "typeorm";
+import { DataSource } from "typeorm";
 
 export const addSlashes = (str: string): string => {
     return (str + '').replace(/'/g, "''");
 }
 
-export const checkSlug = async (_connection: Connection, slug: string, id: number, count: number = 0): Promise<number> => {
+export const checkSlug = async (_connection: DataSource, slug: string, id: number, count: number = 0): Promise<number> => {
     if (count > 0) {
         slug = slug + count;
     }
@@ -19,7 +19,7 @@ export const checkSlug = async (_connection: Connection, slug: string, id: numbe
     return await checkSlugData();
 }
 
-export const validate_slug = async (_connection: Connection, $slug: string, $id: number = 0, $count: number = 0) => {
+export const validate_slug = async (_connection: DataSource, $slug: string, $id: number = 0, $count: number = 0) => {
 
     const checkSlug = async (slug: string, id: number, count: number = 0) => {
         if (count > 0) {

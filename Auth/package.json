@@ -1,6 +1,6 @@
 {
   "name": "@spurtcommerce/auth",
-  "version": "2.0.4",
+  "version": "3.0.0",
   "description": "Spurtcommerce auth service",
   "main": "dist/index.js",
   "scripts": {
@@ -12,7 +12,7 @@
     "crypto-js": "^4.0.0",
     "jsonwebtoken": "^9.0.0",
     "routing-controllers": "^0.10.1",
-    "typeorm": "^0.2.45"
+    "typeorm": "^0.3.26"
   },
   "devDependencies": {
     "@types/node": "^20.7.1",

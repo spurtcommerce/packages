@@ -1,4 +1,4 @@
-import { Connection } from "typeorm";
+import { DataSource } from "typeorm";
 export declare const productCreate: (payload: any, _connection: any) => Promise<{
     status: number;
     message: string;
@@ -27,5 +27,5 @@ declare enum productCol {
     productDiscount = "(SELECT price FROM product_discount pd2 WHERE pd2.product_id = Product.product_id AND pd2.sku_id = skuId AND ((pd2.date_start <= CURDATE() AND  pd2.date_end >= CURDATE()))  ORDER BY pd2.priority ASC, pd2.price ASC LIMIT 1) AS productDiscount",
     productSpecial = "(SELECT price FROM product_special ps WHERE ps.product_id = Product.product_id AND ps.sku_id = skuId AND ((ps.date_start <= CURDATE() AND ps.date_end >= CURDATE())) ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS productSpecial"
 }
-export declare const productList: (_connection: Connection, select: (keyof typeof productCol)[], limit: number, offset: number, keyword: string, productName: string, sku: string, status: string, price: number, count: number | boolean) => Promise<any>;
+export declare const productList: (_connection: DataSource, select: (keyof typeof productCol)[], limit: number, offset: number, keyword: string, productName: string, sku: string, status: string, price: number, count: number | boolean) => Promise<any>;
 export {};

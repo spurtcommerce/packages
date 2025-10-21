@@ -1,6 +1,6 @@
-import { Connection, Like } from "typeorm";
+import { DataSource, Like } from "typeorm";
 
-export const list = async (_connection: Connection, limit: number = 0, offset: number = 0, select: any = [], whereConditions: any = [], keyword: string, count: number | boolean): Promise<any> => {
+export const list = async (_connection: DataSource, limit: number = 0, offset: number = 0, select: any = [], whereConditions: any = [], keyword: string, count: number | boolean): Promise<any> => {
     const condition: any = {};
 
     if (select && select.length > 0) {

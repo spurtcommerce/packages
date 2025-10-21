@@ -4,13 +4,13 @@ exports.getVendorProfile = exports.vendorRegister = void 0;
 const tslib_1 = require("tslib");
 const vendor_service_utils_1 = require("./service/vendor-service-utils");
 const vendor_service_1 = require("./service/vendor-service");
-const moment_1 = tslib_1.__importDefault(require("moment"));
-const vendorRegister = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-    const vendorService = yield _connection.getRepository('Vendor');
-    const settingService = yield _connection.getRepository('Settings');
-    const customerService = yield _connection.getRepository('Customer');
-    const emailTemplateService = yield _connection.getRepository('EmailTemplate');
-    const userService = yield _connection.getRepository('User');
+const moment_1 = (0, tslib_1.__importDefault)(require("moment"));
+const vendorRegister = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
+    const vendorService = _connection.getRepository('Vendor');
+    const settingService = _connection.getRepository('Settings');
+    const customerService = _connection.getRepository('Customer');
+    const emailTemplateService = _connection.getRepository('EmailTemplate');
+    const userService = _connection.getRepository('User');
     const registerParam = payload.body;
     const displayName = registerParam.displayName.replace(/\s+/g, '-').replace(/[&\/\\@#,+()$~%.'":*?<>{}]/g, '').toLowerCase();
     const displayNameIfExist = yield (0, vendor_service_1.validateDisplayUrlName)(_connection, displayName, 0, 0);
@@ -20,7 +20,7 @@ const vendorRegister = (_connection, payload) => tslib_1.__awaiter(void 0, void 
             message: 'Duplicate display name, give some other name.',
         };
     }
-    const logo = yield settingService.findOne();
+    const logo = yield settingService.findOne({});
     const resultUser = yield customerService.findOne({ where: { email: registerParam.emailId, deleteFlag: 0 } });
     if (resultUser) {
         const vendor = yield vendorService.findOne({ where: { customerId: resultUser.id } });
@@ -99,8 +99,8 @@ const vendorRegister = (_connection, payload) => tslib_1.__awaiter(void 0, void 
                     newVendor.vendorPrefixId = 'Ven'.concat(stringPad);
                     yield vendorService.update(vendors.vendorId, newVendor);
                 }
-                const emailContentVendor = yield emailTemplateService.findOne(11);
-                const emailContentAdmin = yield emailTemplateService.findOne(12);
+                const emailContentVendor = yield emailTemplateService.findOne({ where: { emailTemplateId: 11 } });
+                const emailContentAdmin = yield emailTemplateService.findOne({ where: { emailTemplateId: 12 } });
                 const message = emailContentVendor.content.replace('{name}', resultUser.firstName);
                 const adminMessage = emailContentAdmin.content.replace('{vendorName}', resultUser.firstName);
                 const adminId = [];
@@ -232,8 +232,8 @@ const vendorRegister = (_connection, payload) => tslib_1.__awaiter(void 0, void 
             const stringPad = String(vendors.vendorId).padStart(4, '0');
             vendor.vendorPrefixId = 'Ven'.concat(stringPad);
             yield vendorService.update(vendors.vendorId, vendor);
-            const emailContentVendor = yield emailTemplateService.findOne(11);
-            const emailContentAdmin = yield emailTemplateService.findOne(12);
+            const emailContentVendor = yield emailTemplateService.findOne({ where: { emailTemplateId: 11 } });
+            const emailContentAdmin = yield emailTemplateService.findOne({ where: { emailTemplateId: 12 } });
             const message = emailContentVendor.content.replace('{name}', resultData.firstName);
             const adminMessage = emailContentAdmin.content.replace('{vendorName}', resultData.firstName);
             const adminId = [];
@@ -303,12 +303,12 @@ const vendorRegister = (_connection, payload) => tslib_1.__awaiter(void 0, void 
     }
 });
 exports.vendorRegister = vendorRegister;
-const getVendorProfile = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-    const vendorService = yield _connection.getRepository('Vendor');
-    const customerService = yield _connection.getRepository('Customer');
-    const countryService = yield _connection.getRepository('Country');
-    const vendorCategoryService = yield _connection.getRepository('VendorCategory');
-    const categoryService = yield _connection.getRepository('Category');
+const getVendorProfile = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
+    const vendorService = _connection.getRepository('Vendor');
+    const customerService = _connection.getRepository('Customer');
+    const countryService = _connection.getRepository('Country');
+    const vendorCategoryService = _connection.getRepository('VendorCategory');
+    const categoryService = _connection.getRepository('Category');
     const vendor = yield vendorService.findOne({
         where: { vendorId: payload.vendorId },
     });
@@ -327,8 +327,8 @@ const getVendorProfile = (_connection, payload) => tslib_1.__awaiter(void 0, voi
         select: ['vendorCategoryId', 'categoryId', 'vendorId'],
         where: { vendorId: vendor.vendorId },
     }).then((val) => {
-        const category = val.map((value) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-            const categoryNames = yield categoryService.findOne({ categoryId: value.categoryId });
+        const category = val.map((value) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
+            const categoryNames = yield categoryService.findOne({ where: { categoryId: value.categoryId } });
             const temp = value;
             if (categoryNames !== undefined) {
                 temp.categoryName = categoryNames.name;

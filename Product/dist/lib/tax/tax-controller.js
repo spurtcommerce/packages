@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.taxUpdate = exports.taxDelete = exports.taxList = exports.taxCreate = void 0;
 const tslib_1 = require("tslib");
 const tax_service_1 = require("./service/tax-service");
-const taxCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const taxCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const taxService = _connection.getRepository('Tax');
     const existTax = yield taxService.findOne({ where: { taxName: payload.taxName } });
     if (existTax) {
@@ -24,7 +24,7 @@ const taxCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, vo
     };
 });
 exports.taxCreate = taxCreate;
-const taxList = (_connection, limit, offset, keyword, status, count) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const taxList = (_connection, limit, offset, keyword, status, count) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const WhereConditions = [];
     if (status === '0' || status) {
         WhereConditions.push({
@@ -40,7 +40,7 @@ const taxList = (_connection, limit, offset, keyword, status, count) => tslib_1.
     };
 });
 exports.taxList = taxList;
-const taxDelete = (_connection, taxId) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const taxDelete = (_connection, taxId) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const taxService = yield _connection.getRepository('Tax');
     const productService = yield _connection.getRepository('Product');
     const tax = yield taxService.findOne({
@@ -72,7 +72,7 @@ const taxDelete = (_connection, taxId) => tslib_1.__awaiter(void 0, void 0, void
     };
 });
 exports.taxDelete = taxDelete;
-const taxUpdate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const taxUpdate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const taxService = _connection.getRepository('Tax');
     const taxExist = yield taxService.findOne({ where: { taxId: payload.taxId } });
     if (!taxExist) {

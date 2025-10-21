@@ -1,5 +1,5 @@
 declare const customer: {
-    customerRegister: (_connection: import("typeorm").Connection, payload: {
+    customerRegister: (_connection: import("typeorm").DataSource, payload: {
         body: any;
         ip: string;
         storeRedirectUrl: string;
@@ -11,12 +11,12 @@ declare const customer: {
             resultData: any;
         };
     }>;
-    getCustomerList: (_connection: import("typeorm").Connection, select: string[], limit: number, offset: number, name: string, status: string, email: string, customerGroup: string, keyword: string, date: string, count: number) => Promise<{
+    getCustomerList: (_connection: import("typeorm").DataSource, select: string[], limit: number, offset: number, name: string, status: string, email: string, customerGroup: string, keyword: string, date: string, count: number) => Promise<{
         status: number;
         message: string;
         data?: any;
     }>;
-    getCustomerProfile: (_connection: import("typeorm").Connection, customerId: number) => Promise<{
+    getCustomerProfile: (_connection: import("typeorm").DataSource, customerId: number) => Promise<{
         status: number;
         message: string;
         data: any;

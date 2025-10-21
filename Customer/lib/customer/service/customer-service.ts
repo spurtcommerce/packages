@@ -1,7 +1,7 @@
-import { Brackets, Connection } from 'typeorm';
+import { Brackets, DataSource } from 'typeorm';
 
 export const customerListByQueryBuilder = async (
-    _connection: Connection,
+    _connection: DataSource,
     limit: number,
     offset: number,
     select: any = [],

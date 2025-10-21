@@ -4,8 +4,8 @@ exports.categoryList = exports.categoryCreate = void 0;
 const tslib_1 = require("tslib");
 const category_service_utils_1 = require("./service/category-service-utils");
 const category_service_1 = require("./service/category-service");
-const moment_1 = tslib_1.__importDefault(require("moment"));
-const categoryCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const moment_1 = (0, tslib_1.__importDefault)(require("moment"));
+const categoryCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const categoryService = _connection.getRepository('Category');
     const categoryPathService = _connection.getRepository('CategoryPath');
     const newCategory = {};
@@ -55,7 +55,7 @@ const categoryCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 
     };
 });
 exports.categoryCreate = categoryCreate;
-const categoryList = (_connection, limit, offset, keyword, status, name, sortOrder, levelFilter, industryId) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const categoryList = (_connection, limit, offset, keyword, status, name, sortOrder, levelFilter, industryId) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const select = [
         'CategoryPath.categoryId as categoryId',
         'category.sortOrder as sortOrder',

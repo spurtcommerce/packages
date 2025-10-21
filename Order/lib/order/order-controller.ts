@@ -1,10 +1,10 @@
-import { Connection } from "typeorm";
+import { DataSource } from "typeorm";
 import { findDiscountPricewithSku, findSpecialPriceWithSku, findTirePrice } from "./service/order-service";
 import { hashPassword } from "./service/order-service-utils";
 import moment from "moment";
 
 export const orderCreate = async (
-    _connection: Connection,
+    _connection: DataSource,
     payload: {
         checkoutPayload: any,
         pluginModule: string[],
@@ -59,7 +59,7 @@ export const orderCreate = async (
 
     const checkoutParam = payload.checkoutPayload;
 
-    const logo = await settingService.findOne();
+    const logo = await settingService.findOne({});
     const coupon = {
         couponCode: checkoutParam.couponCode,
         couponData: checkoutParam.couponData,
@@ -289,7 +289,7 @@ export const orderCreate = async (
                 newAddress.phoneNo = checkoutParam.phoneNumber;
 
                 await addressService.save(newAddress);
-                const emailContents: any = await emailTemplateService.findOne(1);
+                const emailContents: any = await emailTemplateService.findOne({ where: { emailTemplateId: 1 } });
                 const message = emailContents.content.replace('{name}', resultDatas.firstName);
                 const redirectUrl = payload.storeRedirectUrl;
                 const mailContent: any = {};
@@ -374,7 +374,7 @@ export const orderCreate = async (
     newOrder.customerGstNo = checkoutParam.taxNumber;
     newOrder.ip = payload.ipAddress;
     newOrder.isActive = 1;
-    const setting: any = await settingService.findOne(payload.siteId);
+    const setting: any = await settingService.findOne({ where: { settingsId: payload.siteId } });
     newOrder.orderStatusId = setting ? setting.orderStatus : 0;
     newOrder.invoicePrefix = setting ? setting.invoicePrefix : '';
     const currencyVal: any = await currencyService.findOne(setting.storeCurrencyId);
@@ -458,7 +458,7 @@ export const orderCreate = async (
                             groupId: vendor.vendorGroupId,
                         },
                     });
-                    const defaultCommission: any = await vendorSettingService.findOne();
+                    const defaultCommission: any = await vendorSettingService.findOne({});
                     const defCommission = defaultCommission.defaultCommission;
                     vendororders.commission = (vendorGroup && vendorGroup.commission) ? vendorGroup.commission : defCommission;
                 }
@@ -523,7 +523,7 @@ export const orderCreate = async (
                 await productStockAlertService.save(productStockAlert);
                 // Send email for stock notify
                 const findVendorProduct: any = await vendorProductService.findOne({ where: { productId: productInformation.productId }, relations: ['vendor'] });
-                const findProductNotifyTemp: any = await emailTemplateService.findOne(46);
+                const findProductNotifyTemp: any = await emailTemplateService.findOne({ where: { emailTemplateId: 46 } });
                 if (findVendorProduct) {
                     const customer: any = await customerService.findOne({ where: { id: findVendorProduct.vendor.customerId } });
                     const vendorMessage = findProductNotifyTemp.content.replace(/{name}/g, customer.firstName + ' ' + customer.lastName).replace(/{productName}/g, productData.name);
@@ -594,8 +594,8 @@ export const orderCreate = async (
     await orderService.update(orderData.orderId, newOrder);
     await orderTotalService.save(newOrderTotal);
     if (plugin.pluginName === 'CashOnDelivery') {
-        const emailContent: any = await emailTemplateService.findOne(5);
-        const adminEmailContent: any = await emailTemplateService.findOne(6);
+        const emailContent: any = await emailTemplateService.findOne({ where: { emailTemplateId: 5 } });
+        const adminEmailContent: any = await emailTemplateService.findOne({ where: { emailTemplateId: 6 } });
         const today = ('0' + nowDate.getDate()).slice(-2) + '.' + ('0' + (nowDate.getMonth() + 1)).slice(-2) + '.' + nowDate.getFullYear();
         const customerFirstName = orderData.shippingFirstname;
         const customerLastName = orderData.shippingLastname;

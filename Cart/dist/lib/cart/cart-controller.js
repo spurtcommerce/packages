@@ -3,8 +3,8 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.cartList = exports.cartDelete = exports.cartCreate = void 0;
 const tslib_1 = require("tslib");
 const cart_service_1 = require("./service/cart-service");
-const moment_1 = tslib_1.__importDefault(require("moment"));
-const cartCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const moment_1 = (0, tslib_1.__importDefault)(require("moment"));
+const cartCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const cartParam = payload;
     const productService = _connection.getRepository('Product');
     const skuService = _connection.getRepository('Sku');
@@ -134,7 +134,7 @@ const cartCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, v
     }
 });
 exports.cartCreate = cartCreate;
-const cartDelete = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const cartDelete = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const customerCartService = _connection.getRepository('CustomerCart');
     if (!payload.productIds) {
         const customerCart = yield customerCartService.find({
@@ -152,7 +152,7 @@ const cartDelete = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, v
     }
     const err = [];
     for (const id of payload.productIds) {
-        const val = yield customerCartService.findOne(id);
+        const val = yield customerCartService.findOne({ where: { id } });
         if (!val) {
             err.push(1);
         }
@@ -172,7 +172,7 @@ const cartDelete = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, v
     };
 });
 exports.cartDelete = cartDelete;
-const cartList = (_connection, customerId, limit, offset, count) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const cartList = (_connection, customerId, limit, offset, count) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const productImageService = _connection.getRepository('ProductImage');
     const productTirePriceService = _connection.getRepository('ProductTirePrice');
     const selects = ['CustomerCart.id as id',
@@ -240,7 +240,7 @@ const cartList = (_connection, customerId, limit, offset, count) => tslib_1.__aw
     }
     const cartList = yield (0, cart_service_1.cartListByQueryBuilder)(_connection, limit, offset, selects, whereCondition, [], relations, groupBy, sort, false, true);
     let grandTotal = 0;
-    const findImage = cartList.map((value) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+    const findImage = cartList.map((value) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
         const temp = value;
         temp.taxValue = +value.taxValue;
         temp.optionName = value.optionName;

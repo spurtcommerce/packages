@@ -1,5 +1,5 @@
-import { Connection } from "typeorm";
-export declare const cartCreate: (_connection: Connection, payload: {
+import { DataSource } from "typeorm";
+export declare const cartCreate: (_connection: DataSource, payload: {
     productId: number;
     skuName: string;
     customerId: number;
@@ -14,7 +14,7 @@ export declare const cartCreate: (_connection: Connection, payload: {
     message: string;
     data?: any;
 }>;
-export declare const cartDelete: (_connection: Connection, payload: {
+export declare const cartDelete: (_connection: DataSource, payload: {
     customerId: number;
     productIds?: number[];
 }) => Promise<{
@@ -22,7 +22,7 @@ export declare const cartDelete: (_connection: Connection, payload: {
     message: string;
     data?: any;
 }>;
-export declare const cartList: (_connection: Connection, customerId: number, limit: number, offset: number, count: number) => Promise<{
+export declare const cartList: (_connection: DataSource, customerId: number, limit: number, offset: number, count: number) => Promise<{
     status: number;
     message: string;
     data?: any;

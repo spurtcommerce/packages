@@ -1,2 +1,2 @@
-import { Connection } from "typeorm";
-export declare const excelExportProduct: (_connection: Connection, productIds?: number[]) => Promise<string>;
+import { DataSource } from "typeorm";
+export declare const excelExportProduct: (_connection: DataSource, productIds?: number[]) => Promise<string>;

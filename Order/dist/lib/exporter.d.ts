@@ -1,5 +1,5 @@
 declare const order: {
-    orderCreate: (_connection: import("typeorm").Connection, payload: {
+    orderCreate: (_connection: import("typeorm").DataSource, payload: {
         checkoutPayload: any;
         pluginModule: string[];
         ipAddress: string;

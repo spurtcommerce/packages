@@ -9,7 +9,7 @@ const tslib_1 = require("tslib");
  * Author Spurtcommerce Esolutions Pvt Ltd <support@spurtcommerce.com>
  * Licensed under the MIT license.
  */
-const exporter_1 = tslib_1.__importDefault(require("./lib/exporter"));
+const exporter_1 = (0, tslib_1.__importDefault)(require("./lib/exporter"));
 const { customerRegister, getCustomerList, getCustomerProfile, } = exporter_1.default;
 exports.customerRegister = customerRegister;
 exports.getCustomerList = getCustomerList;

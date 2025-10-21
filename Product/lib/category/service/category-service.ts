@@ -1,7 +1,7 @@
-import { Brackets, Connection } from "typeorm";
+import { Brackets, DataSource } from "typeorm";
 
 export const categoryListByQueryBuilder = async (
-    _connection: Connection,
+    _connection: DataSource,
     limit: number,
     offset: number,
     select: any = [],
@@ -15,7 +15,7 @@ export const categoryListByQueryBuilder = async (
     rawQuery: boolean = false,
 ): Promise<any[] | number> => {
 
-    const query: any = await _connection.getRepository('CategoryPath').createQueryBuilder();
+    const query: any = _connection.getRepository('CategoryPath').createQueryBuilder();
     // Select
     if (select && select.length > 0) {
         query.select(select);

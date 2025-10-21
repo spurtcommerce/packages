@@ -9,12 +9,12 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.authorizationChecker = void 0;
 const tslib_1 = require("tslib");
-const jsonwebtoken_1 = tslib_1.__importDefault(require("jsonwebtoken"));
+const jsonwebtoken_1 = (0, tslib_1.__importDefault)(require("jsonwebtoken"));
 function authorizationChecker(connection, jwtSecret, cryptoSecret, additionalInfo) {
     return function innerAuthorizationChecker(action, roles) {
-        return tslib_1.__awaiter(this, void 0, void 0, function* () {
+        return (0, tslib_1.__awaiter)(this, void 0, void 0, function* () {
             const request = action.request;
-            const parseBasicAuthFromRequest = (req, jwtSecret, cryptoSecret) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const parseBasicAuthFromRequest = (req, jwtSecret, cryptoSecret) => (0, tslib_1.__awaiter)(this, void 0, void 0, function* () {
                 const authorization = req.header('authorization');
                 if (authorization && authorization.split(' ')[0] === 'Bearer') {
                     if (!authorization) {
@@ -44,7 +44,7 @@ function authorizationChecker(connection, jwtSecret, cryptoSecret, additionalInf
             if (userId === undefined) {
                 return false;
             }
-            const checkTokenExist = (req, cryptoSecret) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const checkTokenExist = (req, cryptoSecret) => (0, tslib_1.__awaiter)(this, void 0, void 0, function* () {
                 const authorization = req.header('authorization');
                 if (authorization && authorization.split(' ')[0] === 'Bearer') {
                     if (!authorization) {
@@ -68,7 +68,7 @@ function authorizationChecker(connection, jwtSecret, cryptoSecret, additionalInf
             if (!checkRevoke) {
                 return false;
             }
-            const validateCustomer = (id) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const validateCustomer = (id) => (0, tslib_1.__awaiter)(this, void 0, void 0, function* () {
                 const customer = yield connection.getRepository('Customer').findOne({
                     where: {
                         id, isActive: 1, deleteFlag: 0,
@@ -79,7 +79,7 @@ function authorizationChecker(connection, jwtSecret, cryptoSecret, additionalInf
                 }
                 return undefined;
             });
-            const validateVendor = (id) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const validateVendor = (id) => (0, tslib_1.__awaiter)(this, void 0, void 0, function* () {
                 const vendors = yield connection.getRepository('Vendor').findOne({
                     where: {
                         vendorId: id,
@@ -92,7 +92,7 @@ function authorizationChecker(connection, jwtSecret, cryptoSecret, additionalInf
                 }
                 return undefined;
             });
-            const validateUnapprovedVendor = (id) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const validateUnapprovedVendor = (id) => (0, tslib_1.__awaiter)(this, void 0, void 0, function* () {
                 const vendors = yield connection.getRepository('Vendor').findOne({
                     where: {
                         vendorId: id,
@@ -105,7 +105,7 @@ function authorizationChecker(connection, jwtSecret, cryptoSecret, additionalInf
                 }
                 return undefined;
             });
-            const validateUser = (id) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const validateUser = (id) => (0, tslib_1.__awaiter)(this, void 0, void 0, function* () {
                 const user = yield connection.getRepository('User').findOne({
                     where: {
                         userId: id, deleteFlag: 0, isActive: 1,
@@ -116,7 +116,7 @@ function authorizationChecker(connection, jwtSecret, cryptoSecret, additionalInf
                 }
                 return undefined;
             });
-            const validateUserGroup = (id) => tslib_1.__awaiter(this, void 0, void 0, function* () {
+            const validateUserGroup = (id) => (0, tslib_1.__awaiter)(this, void 0, void 0, function* () {
                 const group = yield connection.getRepository('UserGroup').findOne({
                     where: {
                         groupId: id,

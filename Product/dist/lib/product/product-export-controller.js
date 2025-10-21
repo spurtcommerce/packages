@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.excelExportProduct = void 0;
 const tslib_1 = require("tslib");
 const typeorm_1 = require("typeorm");
-const excelExportProduct = (_connection, productIds) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const excelExportProduct = (_connection, productIds) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const productService = yield _connection.getRepository('Product');
     const excel = require('exceljs');
     const workbook = new excel.Workbook();

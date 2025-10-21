@@ -1,6 +1,6 @@
-import { Connection, In } from "typeorm";
+import { DataSource, In } from "typeorm";
 
-export const excelExportProduct = async (_connection: Connection, productIds?: number[]): Promise<string> => {
+export const excelExportProduct = async (_connection: DataSource, productIds?: number[]): Promise<string> => {
 
     const productService = await _connection.getRepository('Product');
 

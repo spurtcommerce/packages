@@ -5,12 +5,12 @@
  * Author Spurtcommerce Esolutions Pvt Ltd <support@spurtcommerce.com>
  * Licensed under the MIT license.
  */
-import { Connection } from "typeorm";
+import { DataSource } from "typeorm";
 import { cartListByQueryBuilder } from "./service/cart-service";
 import moment from "moment";
 
 export const cartCreate = async (
-    _connection: Connection,
+    _connection: DataSource,
     payload: {
         productId: number,
         skuName: string,
@@ -156,7 +156,7 @@ export const cartCreate = async (
 }
 
 
-export const cartDelete = async (_connection: Connection, payload: { customerId: number, productIds?: number[] }): Promise<{
+export const cartDelete = async (_connection: DataSource, payload: { customerId: number, productIds?: number[] }): Promise<{
     status: number,
     message: string,
     data?: any,
@@ -180,7 +180,7 @@ export const cartDelete = async (_connection: Connection, payload: { customerId:
     }
     const err: any = [];
     for (const id of payload.productIds) {
-        const val = await customerCartService.findOne(id);
+        const val = await customerCartService.findOne({ where: { id } });
         if (!val) {
             err.push(1);
         }
@@ -201,7 +201,7 @@ export const cartDelete = async (_connection: Connection, payload: { customerId:
 }
 
 export const cartList = async (
-    _connection: Connection,
+    _connection: DataSource,
     customerId: number,
     limit: number,
     offset: number,

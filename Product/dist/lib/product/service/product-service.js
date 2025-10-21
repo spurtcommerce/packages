@@ -60,7 +60,7 @@ const list = (_connection, limit, offset, select = [], relation = [], whereCondi
     return productService.find(condition);
 };
 exports.list = list;
-const listByQueryBuilder = (_connection_1, limit_1, offset_1, ...args_1) => tslib_1.__awaiter(void 0, [_connection_1, limit_1, offset_1, ...args_1], void 0, function* (_connection, limit, offset, select = [], whereConditions = [], searchConditions = [], relations = [], groupBy = [], sort = [], count = false, rawQuery = false) {
+const listByQueryBuilder = (_connection, limit, offset, select = [], whereConditions = [], searchConditions = [], relations = [], groupBy = [], sort = [], count = false, rawQuery = false) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const query = _connection.getRepository('Product').createQueryBuilder();
     // Select
     if (select && select.length > 0) {

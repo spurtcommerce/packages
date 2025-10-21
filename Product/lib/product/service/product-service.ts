@@ -1,7 +1,7 @@
-import { Brackets, Connection, Like } from "typeorm";
+import { Brackets, DataSource, Like } from "typeorm";
 import { addSlashes } from "./product-service-utils";
 
-export const list = (_connection: Connection, limit: number, offset: number, select: any = [], relation: any = [], whereConditions: any = [], search: any = [], price: number, count: number | boolean): Promise<any> => {
+export const list = (_connection: DataSource, limit: number, offset: number, select: any = [], relation: any = [], whereConditions: any = [], search: any = [], price: number, count: number | boolean): Promise<any> => {
 
     const productService = _connection.getRepository('Product');
 
@@ -63,7 +63,7 @@ export const list = (_connection: Connection, limit: number, offset: number, sel
 }
 
 export const listByQueryBuilder = async (
-    _connection: Connection,
+    _connection: DataSource,
     limit: number,
     offset: number,
     select: any = [],

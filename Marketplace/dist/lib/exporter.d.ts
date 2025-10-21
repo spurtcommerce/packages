@@ -1,5 +1,5 @@
 declare const marketplace: {
-    vendorRegister: (_connection: import("typeorm").Connection, payload: {
+    vendorRegister: (_connection: import("typeorm").DataSource, payload: {
         body: any;
         ip: string;
         vendorRedirectUrl: string;
@@ -13,10 +13,10 @@ declare const marketplace: {
             resultData: any;
         };
     }>;
-    getVendorProfile: (_connection: import("typeorm").Connection, payload: {
+    getVendorProfile: (_connection: import("typeorm").DataSource, payload: {
         vendorId: number;
     }) => Promise<any>;
-    vendorProductList: (_connection: import("typeorm").Connection, pluginModule: string[], limit: number, offset: number, keyword: string, sku: string, status: string, approvalFlag: string, price: number, productName: string, vendorName: string, isVisible: string, updatedOn: string, sortBy: string, sortOrder: string, count: number | boolean, vendorId: number) => Promise<{
+    vendorProductList: (_connection: import("typeorm").DataSource, pluginModule: string[], limit: number, offset: number, keyword: string, sku: string, status: string, approvalFlag: string, price: number, productName: string, vendorName: string, isVisible: string, updatedOn: string, sortBy: string, sortOrder: string, count: number | boolean, vendorId: number) => Promise<{
         status: number;
         message: string;
         data?: any;

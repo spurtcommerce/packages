@@ -1,6 +1,6 @@
-import { Brackets, Connection } from 'typeorm';
+import { Brackets, DataSource } from 'typeorm';
 
-export const vendorSlug = async (_connection: Connection, data: string): Promise<any> => {
+export const vendorSlug = async (_connection: DataSource, data: string): Promise<any> => {
     const query: any = _connection.createQueryBuilder('Vendor', 'vendor');
     query.select(['vendor.vendor_id as vendorId', 'vendor.vendor_slug_name as vendorSlugName', 'customer.first_name as firstName']);
     query.where('customer.first_name = :value', { value: data });
@@ -8,7 +8,7 @@ export const vendorSlug = async (_connection: Connection, data: string): Promise
     return query.getRawMany();
 }
 
-export const validateDisplayUrlName = async (_connection: Connection, name: string, checkVendor: number, vendorId: number): Promise<any> => {
+export const validateDisplayUrlName = async (_connection: DataSource, name: string, checkVendor: number, vendorId: number): Promise<any> => {
     const query: any = _connection.createQueryBuilder('Vendor', 'vendor');
     query.where('vendor.displayNameUrl = :value', { value: name });
     query.andWhere('customer.deleteFlag = :deleteFlag', { deleteFlag: 0 });
@@ -19,7 +19,7 @@ export const validateDisplayUrlName = async (_connection: Connection, name: stri
     return query.getRawOne();
 }
 
-export const getOrderEarnings = async (_connection: Connection, id: number): Promise<any> => {
+export const getOrderEarnings = async (_connection: DataSource, id: number): Promise<any> => {
     const query: any = await _connection.createQueryBuilder('OrderProduct', 'orderProduct');
     query.select(['SUM(orderProduct.total + orderProduct.discountAmount) as productPriceTotal', 'COUNT(orderProduct.orderId) as orderCount', 'SUM(orderProduct.quantity) as quantityCount', 'COUNT(DISTINCT(product.customer_id)) as buyerCount']);
     query.innerJoin('orderProduct.product', 'product');
@@ -29,7 +29,7 @@ export const getOrderEarnings = async (_connection: Connection, id: number): Pro
 }
 
 export const vendorProductListByQueryBuilder = async (
-    _connection: Connection,
+    _connection: DataSource,
     limit: number,
     offset: number,
     select: any = [],

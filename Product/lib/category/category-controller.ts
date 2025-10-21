@@ -1,10 +1,10 @@
-import { Connection } from "typeorm";
+import { DataSource } from "typeorm";
 import { escapeChar, validate_category_slug } from "./service/category-service-utils";
 import { categoryListByQueryBuilder } from "./service/category-service";
 import moment from "moment";
 
 export const categoryCreate = async (
-    _connection: Connection,
+    _connection: DataSource,
     payload: {
         name: string,
         containerName: string,
@@ -79,7 +79,7 @@ export const categoryCreate = async (
 }
 
 export const categoryList = async (
-    _connection: Connection,
+    _connection: DataSource,
     limit: number,
     offset: number,
     keyword: string,

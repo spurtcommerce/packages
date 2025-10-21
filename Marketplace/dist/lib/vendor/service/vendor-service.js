@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.vendorProductListByQueryBuilder = exports.getOrderEarnings = exports.validateDisplayUrlName = exports.vendorSlug = void 0;
 const tslib_1 = require("tslib");
 const typeorm_1 = require("typeorm");
-const vendorSlug = (_connection, data) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const vendorSlug = (_connection, data) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const query = _connection.createQueryBuilder('Vendor', 'vendor');
     query.select(['vendor.vendor_id as vendorId', 'vendor.vendor_slug_name as vendorSlugName', 'customer.first_name as firstName']);
     query.where('customer.first_name = :value', { value: data });
@@ -11,7 +11,7 @@ const vendorSlug = (_connection, data) => tslib_1.__awaiter(void 0, void 0, void
     return query.getRawMany();
 });
 exports.vendorSlug = vendorSlug;
-const validateDisplayUrlName = (_connection, name, checkVendor, vendorId) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const validateDisplayUrlName = (_connection, name, checkVendor, vendorId) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const query = _connection.createQueryBuilder('Vendor', 'vendor');
     query.where('vendor.displayNameUrl = :value', { value: name });
     query.andWhere('customer.deleteFlag = :deleteFlag', { deleteFlag: 0 });
@@ -22,7 +22,7 @@ const validateDisplayUrlName = (_connection, name, checkVendor, vendorId) => tsl
     return query.getRawOne();
 });
 exports.validateDisplayUrlName = validateDisplayUrlName;
-const getOrderEarnings = (_connection, id) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const getOrderEarnings = (_connection, id) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const query = yield _connection.createQueryBuilder('OrderProduct', 'orderProduct');
     query.select(['SUM(orderProduct.total + orderProduct.discountAmount) as productPriceTotal', 'COUNT(orderProduct.orderId) as orderCount', 'SUM(orderProduct.quantity) as quantityCount', 'COUNT(DISTINCT(product.customer_id)) as buyerCount']);
     query.innerJoin('orderProduct.product', 'product');
@@ -31,7 +31,7 @@ const getOrderEarnings = (_connection, id) => tslib_1.__awaiter(void 0, void 0, 
     return query.getRawOne();
 });
 exports.getOrderEarnings = getOrderEarnings;
-const vendorProductListByQueryBuilder = (_connection_1, limit_1, offset_1, ...args_1) => tslib_1.__awaiter(void 0, [_connection_1, limit_1, offset_1, ...args_1], void 0, function* (_connection, limit, offset, select = [], whereConditions = [], searchConditions = [], relations = [], groupBy = [], sort = [], price, count, rawQuery) {
+const vendorProductListByQueryBuilder = (_connection, limit, offset, select = [], whereConditions = [], searchConditions = [], relations = [], groupBy = [], sort = [], price, count, rawQuery) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const query = yield _connection.getRepository('VendorProducts').createQueryBuilder();
     // Select
     if (select && select.length > 0) {

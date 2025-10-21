@@ -2,4 +2,4 @@ index.ts
 tsconfig.json
 cli.ts
 index.ts
-lib/
+/lib/

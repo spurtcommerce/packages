@@ -3,7 +3,7 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.customerListByQueryBuilder = void 0;
 const tslib_1 = require("tslib");
 const typeorm_1 = require("typeorm");
-const customerListByQueryBuilder = (_connection, limit, offset, select = [], whereConditions = [], searchConditions = [], relations = [], groupBy = [], sort = [], count = false, rawQuery = false) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const customerListByQueryBuilder = (_connection, limit, offset, select = [], whereConditions = [], searchConditions = [], relations = [], groupBy = [], sort = [], count = false, rawQuery = false) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const query = yield _connection.getRepository('Customer').createQueryBuilder();
     // Select
     if (select && select.length > 0) {

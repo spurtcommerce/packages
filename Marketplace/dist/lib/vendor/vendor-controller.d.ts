@@ -1,4 +1,4 @@
-import { Connection } from "typeorm";
+import { DataSource } from "typeorm";
 export interface emailView {
     mailContent: string;
     email: string | string[];
@@ -7,7 +7,7 @@ export interface emailView {
     isAttachment: boolean;
     attachmentDetails: any;
 }
-export declare const vendorRegister: (_connection: Connection, payload: {
+export declare const vendorRegister: (_connection: DataSource, payload: {
     body: any;
     ip: string;
     vendorRedirectUrl: string;
@@ -21,6 +21,6 @@ export declare const vendorRegister: (_connection: Connection, payload: {
         resultData: any;
     };
 }>;
-export declare const getVendorProfile: (_connection: Connection, payload: {
+export declare const getVendorProfile: (_connection: DataSource, payload: {
     vendorId: number;
 }) => Promise<any>;

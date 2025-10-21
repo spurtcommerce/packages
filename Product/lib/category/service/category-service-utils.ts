@@ -1,13 +1,13 @@
-import { Connection } from "typeorm";
+import { DataSource } from "typeorm";
 
-export const validate_category_slug = async (_connection: Connection, $slug: string, $id: number = 0, $count: number = 0): Promise<string> => {
+export const validate_category_slug = async (_connection: DataSource, $slug: string, $id: number = 0, $count: number = 0): Promise<string> => {
 
     const checkSlug = async (slug: string, id: number, count: number = 0): Promise<number> => {
         if (count > 0) {
             slug = slug + count;
         }
         const checkSlugData = async (slug: string, id: number): Promise<number> => {
-            const query = await _connection.manager.createQueryBuilder('Category', 'category');
+            const query = _connection.manager.createQueryBuilder('Category', 'category');
             query.where('category.category_slug = :slug', { slug });
             if (id > 0) {
                 query.andWhere('category.categoryId != :id', { id });

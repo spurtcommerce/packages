@@ -1,5 +1,5 @@
-import { Connection } from "typeorm";
-export declare const categoryCreate: (_connection: Connection, payload: {
+import { DataSource } from "typeorm";
+export declare const categoryCreate: (_connection: DataSource, payload: {
     name: string;
     containerName: string;
     containerPath: string;
@@ -14,7 +14,7 @@ export declare const categoryCreate: (_connection: Connection, payload: {
     message: string;
     data?: object;
 }>;
-export declare const categoryList: (_connection: Connection, limit: number, offset: number, keyword: string, status: string, name: string, sortOrder: number, levelFilter: number, industryId: number) => Promise<{
+export declare const categoryList: (_connection: DataSource, limit: number, offset: number, keyword: string, status: string, name: string, sortOrder: number, levelFilter: number, industryId: number) => Promise<{
     status: number;
     message: string;
     data: number | any[];

@@ -1,8 +1,8 @@
-import { Connection } from "typeorm";
+import { DataSource } from "typeorm";
 import { getOrderEarnings, vendorProductListByQueryBuilder } from "./service/vendor-service";
 
 export const vendorProductList = async (
-    _connection: Connection,
+    _connection: DataSource,
     pluginModule: string[],
     limit: number,
     offset: number,
@@ -25,9 +25,9 @@ export const vendorProductList = async (
     data?: any
 }> => {
 
-    const pluginService = await _connection.getRepository('Plugins');
-    const productToCategoryService = await _connection.getRepository('ProductToCategory');
-    const categoryService = await _connection.getRepository('Category');
+    const pluginService = _connection.getRepository('Plugins');
+    const productToCategoryService = _connection.getRepository('ProductToCategory');
+    const categoryService = _connection.getRepository('Category');
 
     const selects = ['VendorProducts.vendorProductId as vendorProductId',
         'VendorProducts.vendorProductCommission as vendorProductCommission',
@@ -220,7 +220,7 @@ export const vendorProductList = async (
             where: { productId: value.productId },
         }).then((val) => {
             const category = val.map(async (values: any) => {
-                const categoryNames: any = await categoryService.findOne({ categoryId: values.categoryId });
+                const categoryNames: any = await categoryService.findOne({ where: { categoryId: values.categoryId } });
                 const tempp: any = values;
                 if (categoryNames !== undefined) {
                     tempp.categoryName = categoryNames.name;

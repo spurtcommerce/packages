@@ -4,8 +4,8 @@ exports.orderCreate = void 0;
 const tslib_1 = require("tslib");
 const order_service_1 = require("./service/order-service");
 const order_service_utils_1 = require("./service/order-service-utils");
-const moment_1 = tslib_1.__importDefault(require("moment"));
-const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const moment_1 = (0, tslib_1.__importDefault)(require("moment"));
+const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     var _a, _b, _c, _d, _e, _f;
     const orderService = _connection.getRepository('Order');
     const orderProductService = _connection.getRepository('OrderProduct');
@@ -40,7 +40,7 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
     const codCustomerMail = {};
     const stockNotifyMails = {};
     const checkoutParam = payload.checkoutPayload;
-    const logo = yield settingService.findOne();
+    const logo = yield settingService.findOne({});
     const coupon = {
         couponCode: checkoutParam.couponCode,
         couponData: checkoutParam.couponData,
@@ -271,7 +271,7 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
                 newAddress.landmark = '';
                 newAddress.phoneNo = checkoutParam.phoneNumber;
                 yield addressService.save(newAddress);
-                const emailContents = yield emailTemplateService.findOne(1);
+                const emailContents = yield emailTemplateService.findOne({ where: { emailTemplateId: 1 } });
                 const message = emailContents.content.replace('{name}', resultDatas.firstName);
                 const redirectUrl = payload.storeRedirectUrl;
                 const mailContent = {};
@@ -355,7 +355,7 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
     newOrder.customerGstNo = checkoutParam.taxNumber;
     newOrder.ip = payload.ipAddress;
     newOrder.isActive = 1;
-    const setting = yield settingService.findOne(payload.siteId);
+    const setting = yield settingService.findOne({ where: { settingsId: payload.siteId } });
     newOrder.orderStatusId = setting ? setting.orderStatus : 0;
     newOrder.invoicePrefix = setting ? setting.invoicePrefix : '';
     const currencyVal = yield currencyService.findOne(setting.storeCurrencyId);
@@ -441,7 +441,7 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
                             groupId: vendor.vendorGroupId,
                         },
                     });
-                    const defaultCommission = yield vendorSettingService.findOne();
+                    const defaultCommission = yield vendorSettingService.findOne({});
                     const defCommission = defaultCommission.defaultCommission;
                     vendororders.commission = (vendorGroup && vendorGroup.commission) ? vendorGroup.commission : defCommission;
                 }
@@ -501,7 +501,7 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
                 yield productStockAlertService.save(productStockAlert);
                 // Send email for stock notify
                 const findVendorProduct = yield vendorProductService.findOne({ where: { productId: productInformation.productId }, relations: ['vendor'] });
-                const findProductNotifyTemp = yield emailTemplateService.findOne(46);
+                const findProductNotifyTemp = yield emailTemplateService.findOne({ where: { emailTemplateId: 46 } });
                 if (findVendorProduct) {
                     const customer = yield customerService.findOne({ where: { id: findVendorProduct.vendor.customerId } });
                     const vendorMessage = findProductNotifyTemp.content.replace(/{name}/g, customer.firstName + ' ' + customer.lastName).replace(/{productName}/g, productData.name);
@@ -567,8 +567,8 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
     yield orderService.update(orderData.orderId, newOrder);
     yield orderTotalService.save(newOrderTotal);
     if (plugin.pluginName === 'CashOnDelivery') {
-        const emailContent = yield emailTemplateService.findOne(5);
-        const adminEmailContent = yield emailTemplateService.findOne(6);
+        const emailContent = yield emailTemplateService.findOne({ where: { emailTemplateId: 5 } });
+        const adminEmailContent = yield emailTemplateService.findOne({ where: { emailTemplateId: 6 } });
         const today = ('0' + nowDate.getDate()).slice(-2) + '.' + ('0' + (nowDate.getMonth() + 1)).slice(-2) + '.' + nowDate.getFullYear();
         const customerFirstName = orderData.shippingFirstname;
         const customerLastName = orderData.shippingLastname;
@@ -652,7 +652,7 @@ const orderCreate = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, 
         const order = yield orderService.findOne(orderData.orderId);
         order.paymentType = plugin ? plugin.pluginName : '';
         order.productDetail = yield orderProductService.find({ where: { orderId: orderData.orderId } }).then((val) => {
-            const productImage = val.map((value) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+            const productImage = val.map((value) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
                 let image;
                 image = yield productImageService.findOne({ where: { productId: value.productId } });
                 const temp = value;

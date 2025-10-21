@@ -1,4 +1,4 @@
-declare const cartCreate: (_connection: import("typeorm").Connection, payload: {
+declare const cartCreate: (_connection: import("typeorm").DataSource, payload: {
     productId: number;
     skuName: string;
     customerId: number;
@@ -12,14 +12,14 @@ declare const cartCreate: (_connection: import("typeorm").Connection, payload: {
     status: number;
     message: string;
     data?: any;
-}>, cartDelete: (_connection: import("typeorm").Connection, payload: {
+}>, cartDelete: (_connection: import("typeorm").DataSource, payload: {
     customerId: number;
     productIds?: number[];
 }) => Promise<{
     status: number;
     message: string;
     data?: any;
-}>, cartList: (_connection: import("typeorm").Connection, customerId: number, limit: number, offset: number, count: number) => Promise<{
+}>, cartList: (_connection: import("typeorm").DataSource, customerId: number, limit: number, offset: number, count: number) => Promise<{
     status: number;
     message: string;
     data?: any;

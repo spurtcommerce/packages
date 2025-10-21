@@ -3,10 +3,10 @@ Object.defineProperty(exports, "__esModule", { value: true });
 exports.vendorProductList = void 0;
 const tslib_1 = require("tslib");
 const vendor_service_1 = require("./service/vendor-service");
-const vendorProductList = (_connection, pluginModule, limit, offset, keyword, sku, status, approvalFlag, price, productName, vendorName, isVisible, updatedOn, sortBy, sortOrder, count, vendorId) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-    const pluginService = yield _connection.getRepository('Plugins');
-    const productToCategoryService = yield _connection.getRepository('ProductToCategory');
-    const categoryService = yield _connection.getRepository('Category');
+const vendorProductList = (_connection, pluginModule, limit, offset, keyword, sku, status, approvalFlag, price, productName, vendorName, isVisible, updatedOn, sortBy, sortOrder, count, vendorId) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
+    const pluginService = _connection.getRepository('Plugins');
+    const productToCategoryService = _connection.getRepository('ProductToCategory');
+    const categoryService = _connection.getRepository('Category');
     const selects = ['VendorProducts.vendorProductId as vendorProductId',
         'VendorProducts.vendorProductCommission as vendorProductCommission',
         'VendorProducts.quotationAvailable as quotationAvailable',
@@ -180,14 +180,14 @@ const vendorProductList = (_connection, pluginModule, limit, offset, keyword, sk
         const productVarientOptionService = yield _connection.getRepository('ProductVarientOption');
         varientSku = yield productVarientOptionService.find({});
     }
-    const productList = vendorProductList.map((value) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+    const productList = vendorProductList.map((value) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
         const temp = value;
         const categories = yield productToCategoryService.find({
             select: ['categoryId', 'productId'],
             where: { productId: value.productId },
         }).then((val) => {
-            const category = val.map((values) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
-                const categoryNames = yield categoryService.findOne({ categoryId: values.categoryId });
+            const category = val.map((values) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
+                const categoryNames = yield categoryService.findOne({ where: { categoryId: values.categoryId } });
                 const tempp = values;
                 if (categoryNames !== undefined) {
                     tempp.categoryName = categoryNames.name;

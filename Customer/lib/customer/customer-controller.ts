@@ -1,4 +1,4 @@
-import { Connection } from 'typeorm';
+import { DataSource } from 'typeorm';
 import { hashPassword } from './service/customer-service-utils';
 import { instanceToPlain } from 'class-transformer';
 import { customerListByQueryBuilder } from './service/customer-service';
@@ -14,7 +14,7 @@ export interface emailView {
 }
 
 export const customerRegister = async (
-    _connection: Connection,
+    _connection: DataSource,
     payload: {
         body: any,
         ip: string,
@@ -65,10 +65,10 @@ export const customerRegister = async (
     }
     if (registerParam.password === registerParam.confirmPassword) {
         const resultData: any = await customerService.save(newUser);
-        const emailContent: any = await emailTemplateService.findOne(1);
+        const emailContent: any = await emailTemplateService.findOne({ where: { emailTemplateId: 1 } });
         const message = emailContent.content.replace('{name}', resultData.firstName);
         const redirectUrl = payload.storeRedirectUrl;
-        const logo = await settingService.findOne();
+        const logo = await settingService.findOne({});
         const mailContents: any = {};
         mailContents.logo = logo;
         mailContents.emailContent = message;
@@ -102,7 +102,7 @@ export const customerRegister = async (
 }
 
 export const getCustomerList = async (
-    _connection: Connection,
+    _connection: DataSource,
     select: string[],
     limit: number,
     offset: number,
@@ -195,7 +195,7 @@ export const getCustomerList = async (
 }
 
 export const getCustomerProfile = async (
-    _connection: Connection,
+    _connection: DataSource,
     customerId: number,
 ): Promise<{
     status: number,

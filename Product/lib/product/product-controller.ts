@@ -1,5 +1,5 @@
 import moment from 'moment';
-import { Connection } from "typeorm";
+import { DataSource } from "typeorm";
 import { instanceToPlain } from 'class-transformer';
 import { listByQueryBuilder } from "./service/product-service";
 import { escapeChar, validate_slug } from './service/product-service-utils';
@@ -245,7 +245,7 @@ enum productCol {
 }
 
 export const productList = async (
-    _connection: Connection,
+    _connection: DataSource,
     select: (keyof typeof productCol)[],
     limit: number,
     offset: number,

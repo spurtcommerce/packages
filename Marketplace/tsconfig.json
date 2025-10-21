@@ -23,6 +23,7 @@
     "resolveJsonModule": true,
     "esModuleInterop": true,
     "declaration": true,
+    "skipLibCheck": true,
     "lib": [
       "es5",
       "es6",

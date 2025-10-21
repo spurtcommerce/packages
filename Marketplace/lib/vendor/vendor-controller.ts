@@ -1,4 +1,4 @@
-import { Connection } from "typeorm";
+import { DataSource } from "typeorm";
 import { hashPassword } from "./service/vendor-service-utils";
 import { validateDisplayUrlName, vendorSlug } from "./service/vendor-service";
 import moment from "moment";
@@ -13,7 +13,7 @@ export interface emailView {
 }
 
 export const vendorRegister = async (
-    _connection: Connection,
+    _connection: DataSource,
     payload: {
         body: any,
         ip: string,
@@ -30,11 +30,11 @@ export const vendorRegister = async (
     }
 }> => {
 
-    const vendorService = await _connection.getRepository('Vendor');
-    const settingService = await _connection.getRepository('Settings');
-    const customerService = await _connection.getRepository('Customer');
-    const emailTemplateService = await _connection.getRepository('EmailTemplate');
-    const userService = await _connection.getRepository('User');
+    const vendorService = _connection.getRepository('Vendor');
+    const settingService = _connection.getRepository('Settings');
+    const customerService = _connection.getRepository('Customer');
+    const emailTemplateService = _connection.getRepository('EmailTemplate');
+    const userService = _connection.getRepository('User');
 
     const registerParam = payload.body;
     const displayName = registerParam.displayName.replace(/\s+/g, '-').replace(/[&\/\\@#,+()$~%.'":*?<>{}]/g, '').toLowerCase();
@@ -45,7 +45,7 @@ export const vendorRegister = async (
             message: 'Duplicate display name, give some other name.',
         };
     }
-    const logo = await settingService.findOne();
+    const logo = await settingService.findOne({});
     const resultUser: any = await customerService.findOne({ where: { email: registerParam.emailId, deleteFlag: 0 } });
     if (resultUser) {
         const vendor = await vendorService.findOne({ where: { customerId: resultUser.id } });
@@ -121,8 +121,8 @@ export const vendorRegister = async (
                     newVendor.vendorPrefixId = 'Ven'.concat(stringPad);
                     await vendorService.update(vendors.vendorId, newVendor);
                 }
-                const emailContentVendor: any = await emailTemplateService.findOne(11);
-                const emailContentAdmin: any = await emailTemplateService.findOne(12);
+                const emailContentVendor: any = await emailTemplateService.findOne({ where: { emailTemplateId: 11 } });
+                const emailContentAdmin: any = await emailTemplateService.findOne({ where: { emailTemplateId: 12 } });
                 const message = emailContentVendor.content.replace('{name}', resultUser.firstName);
                 const adminMessage = emailContentAdmin.content.replace('{vendorName}', resultUser.firstName);
                 const adminId: any = [];
@@ -258,8 +258,8 @@ export const vendorRegister = async (
             const stringPad = String(vendors.vendorId).padStart(4, '0');
             vendor.vendorPrefixId = 'Ven'.concat(stringPad);
             await vendorService.update(vendors.vendorId, vendor);
-            const emailContentVendor: any = await emailTemplateService.findOne(11);
-            const emailContentAdmin: any = await emailTemplateService.findOne(12);
+            const emailContentVendor: any = await emailTemplateService.findOne({ where: { emailTemplateId: 11 } });
+            const emailContentAdmin: any = await emailTemplateService.findOne({ where: { emailTemplateId: 12 } });
             const message = emailContentVendor.content.replace('{name}', resultData.firstName);
             const adminMessage = emailContentAdmin.content.replace('{vendorName}', resultData.firstName);
             const adminId: any = [];
@@ -336,17 +336,17 @@ export const vendorRegister = async (
 }
 
 export const getVendorProfile = async (
-    _connection: Connection,
+    _connection: DataSource,
     payload: {
         vendorId: number
     },
 ): Promise<any> => {
 
-    const vendorService = await _connection.getRepository('Vendor');
-    const customerService = await _connection.getRepository('Customer');
-    const countryService = await _connection.getRepository('Country');
-    const vendorCategoryService = await _connection.getRepository('VendorCategory');
-    const categoryService = await _connection.getRepository('Category');
+    const vendorService = _connection.getRepository('Vendor');
+    const customerService = _connection.getRepository('Customer');
+    const countryService = _connection.getRepository('Country');
+    const vendorCategoryService = _connection.getRepository('VendorCategory');
+    const categoryService = _connection.getRepository('Category');
 
     const vendor: any = await vendorService.findOne({
         where: { vendorId: payload.vendorId },
@@ -368,7 +368,7 @@ export const getVendorProfile = async (
         where: { vendorId: vendor.vendorId },
     }).then((val) => {
         const category = val.map(async (value: any) => {
-            const categoryNames: any = await categoryService.findOne({ categoryId: value.categoryId });
+            const categoryNames: any = await categoryService.findOne({ where: { categoryId: value.categoryId }});
             const temp: any = value;
             if (categoryNames !== undefined) {
                 temp.categoryName = categoryNames.name;

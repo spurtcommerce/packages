@@ -2,11 +2,11 @@
 Object.defineProperty(exports, "__esModule", { value: true });
 exports.productList = exports.productCreate = void 0;
 const tslib_1 = require("tslib");
-const moment_1 = tslib_1.__importDefault(require("moment"));
+const moment_1 = (0, tslib_1.__importDefault)(require("moment"));
 const class_transformer_1 = require("class-transformer");
 const product_service_1 = require("./service/product-service");
 const product_service_utils_1 = require("./service/product-service-utils");
-const productCreate = (payload, _connection) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const productCreate = (payload, _connection) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const skuService = _connection.getRepository('Sku');
     const categoryService = _connection.getRepository('Category');
     const productService = _connection.getRepository('Product');
@@ -232,7 +232,7 @@ var productCol;
     productCol["productDiscount"] = "(SELECT price FROM product_discount pd2 WHERE pd2.product_id = Product.product_id AND pd2.sku_id = skuId AND ((pd2.date_start <= CURDATE() AND  pd2.date_end >= CURDATE()))  ORDER BY pd2.priority ASC, pd2.price ASC LIMIT 1) AS productDiscount";
     productCol["productSpecial"] = "(SELECT price FROM product_special ps WHERE ps.product_id = Product.product_id AND ps.sku_id = skuId AND ((ps.date_start <= CURDATE() AND ps.date_end >= CURDATE())) ORDER BY ps.priority ASC, ps.price ASC LIMIT 1) AS productSpecial";
 })(productCol || (productCol = {}));
-const productList = (_connection, select, limit, offset, keyword, productName, sku, status, price, count) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const productList = (_connection, select, limit, offset, keyword, productName, sku, status, price, count) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const columns = ['Product.skuId as skuId', ...select.map((col) => productCol[col])];
     const relations = [];
     const groupBy = [];
@@ -293,7 +293,7 @@ const productList = (_connection, select, limit, offset, keyword, productName, s
             data: productListCount,
         };
     }
-    const productList = productLists.map((value) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+    const productList = productLists.map((value) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
         const temp = value;
         const date = (0, moment_1.default)(value.dateAvailable).format('YYYY-MM-DD');
         const currentDate = (0, moment_1.default)().format('YYYY-MM-DD');

@@ -5,8 +5,8 @@ const tslib_1 = require("tslib");
 const customer_service_utils_1 = require("./service/customer-service-utils");
 const class_transformer_1 = require("class-transformer");
 const customer_service_1 = require("./service/customer-service");
-const moment_1 = tslib_1.__importDefault(require("moment"));
-const customerRegister = (_connection, payload) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const moment_1 = (0, tslib_1.__importDefault)(require("moment"));
+const customerRegister = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     var _a;
     const registerParam = payload.body;
     const customerService = _connection.getRepository('Customer');
@@ -43,10 +43,10 @@ const customerRegister = (_connection, payload) => tslib_1.__awaiter(void 0, voi
     }
     if (registerParam.password === registerParam.confirmPassword) {
         const resultData = yield customerService.save(newUser);
-        const emailContent = yield emailTemplateService.findOne(1);
+        const emailContent = yield emailTemplateService.findOne({ where: { emailTemplateId: 1 } });
         const message = emailContent.content.replace('{name}', resultData.firstName);
         const redirectUrl = payload.storeRedirectUrl;
-        const logo = yield settingService.findOne();
+        const logo = yield settingService.findOne({});
         const mailContents = {};
         mailContents.logo = logo;
         mailContents.emailContent = message;
@@ -76,7 +76,7 @@ const customerRegister = (_connection, payload) => tslib_1.__awaiter(void 0, voi
     };
 });
 exports.customerRegister = customerRegister;
-const getCustomerList = (_connection, select, limit, offset, name, status, email, customerGroup, keyword, date, count) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const getCustomerList = (_connection, select, limit, offset, name, status, email, customerGroup, keyword, date, count) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const relations = [{
             tableName: 'Customer.customerGroup',
             op: 'left',
@@ -150,7 +150,7 @@ const getCustomerList = (_connection, select, limit, offset, name, status, email
     };
 });
 exports.getCustomerList = getCustomerList;
-const getCustomerProfile = (_connection, customerId) => tslib_1.__awaiter(void 0, void 0, void 0, function* () {
+const getCustomerProfile = (_connection, customerId) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
     const customerService = _connection.getRepository('Customer');
     const resultData = yield customerService.findOne({ where: { id: customerId } });
     return {

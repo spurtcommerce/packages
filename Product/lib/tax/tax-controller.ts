@@ -1,8 +1,8 @@
-import { Connection } from "typeorm";
+import { DataSource } from "typeorm";
 import { list } from "./service/tax-service";
 
 export const taxCreate = async (
-    _connection: Connection,
+    _connection: DataSource,
     payload: {
         taxName: string,
         taxPercentage: number,
@@ -33,7 +33,7 @@ export const taxCreate = async (
 }
 
 export const taxList = async (
-    _connection: Connection,
+    _connection: DataSource,
     limit: number,
     offset: number,
     keyword: string,
@@ -60,7 +60,7 @@ export const taxList = async (
 }
 
 export const taxDelete = async (
-    _connection: Connection,
+    _connection: DataSource,
     taxId: number,
 ) => {
 
@@ -103,7 +103,7 @@ export const taxDelete = async (
 }
 
 export const taxUpdate = async (
-    _connection: Connection,
+    _connection: DataSource,
     payload: {
         taxId: number,
         taxName: string,
