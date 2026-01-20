@@ -40,7 +40,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
     const codCustomerMail = {};
     const stockNotifyMails = {};
     const checkoutParam = payload.checkoutPayload;
-    const logo = yield settingService.findOne({});
+    const logo = yield settingService.findOne({ where: {} });
     const coupon = {
         couponCode: checkoutParam.couponCode,
         couponData: checkoutParam.couponData,
@@ -81,7 +81,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
         taxType = productTire.taxType;
         if (taxType === 2 && taxType) {
             const tax = yield taxService.findOne({ where: { taxId: productTire.taxValue } });
-            taxValue = (tax !== undefined) ? tax.taxPercentage : 0;
+            taxValue = (tax) ? tax.taxPercentage : 0;
         }
         else if (taxType === 1 && taxType) {
             taxValue = productTire.taxValue;
@@ -114,10 +114,10 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
                     const todaydate = dateNow.getFullYear() + '-' + (dateNow.getMonth() + 1) + '-' + dateNow.getDate();
                     const productSpecial = yield (0, order_service_1.findSpecialPriceWithSku)(_connection, val.productId, sku.id, todaydate);
                     const productDiscount = yield (0, order_service_1.findDiscountPricewithSku)(_connection, val.productId, sku.id, todaydate);
-                    if (productSpecial !== undefined) {
+                    if (productSpecial) {
                         tirePrice = productSpecial.price;
                     }
-                    else if (productDiscount !== undefined) {
+                    else if (productDiscount) {
                         tirePrice = productDiscount.price;
                     }
                     else {
@@ -154,7 +154,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
         dynamicData[val.skuName] = obj;
     }
     for (const val of orderProducts) {
-        const product = yield productService.findOne(val.productId);
+        const product = yield productService.findOne({ where: { productId: val.productId } });
         const sku = yield skuService.findOne({ where: { skuName: val.skuName } });
         if (product.productType === 'physical' && product.hasStock === 1) {
             if (!(+sku.minQuantityAllowedCart <= +val.quantity)) {
@@ -184,7 +184,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
         }
     }
     const plugin = yield pluginService.findOne({ where: { id: checkoutParam.paymentMethod } });
-    if (plugin === undefined) {
+    if (!plugin) {
         return {
             status: 0,
             message: 'Payment method is invalid',
@@ -216,7 +216,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
                 deleteFlag: 0,
             },
         });
-        if (customerEmail === undefined) {
+        if (!customerEmail) {
             if (checkoutParam.password) {
                 const newUser = {};
                 newUser.firstName = checkoutParam.shippingFirstName;
@@ -358,7 +358,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
     const setting = yield settingService.findOne({ where: { settingsId: payload.siteId } });
     newOrder.orderStatusId = setting ? setting.orderStatus : 0;
     newOrder.invoicePrefix = setting ? setting.invoicePrefix : '';
-    const currencyVal = yield currencyService.findOne(setting.storeCurrencyId);
+    const currencyVal = yield currencyService.findOne({ where: { currencyId: setting.storeCurrencyId } });
     newOrder.currencyCode = currencyVal ? currencyVal.code : '';
     newOrder.currencyValue = currencyVal ? currencyVal.value : '';
     newOrder.currencySymbolLeft = currencyVal ? currencyVal.symbolLeft : '';
@@ -380,7 +380,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
         const dynamicPrices = dynamicData[orderProduct[i].skuName];
         const productDetails = {};
         productDetails.productId = orderProduct[i].productId;
-        const productData = yield productService.findOne(orderProduct[i].productId);
+        const productData = yield productService.findOne({ where: { productId: orderProduct[i].productId } });
         const nwDate = new Date();
         const odrDate = nwDate.getFullYear() + ('0' + (nwDate.getMonth() + 1)).slice(-2) + ('0' + nwDate.getDate()).slice(-2);
         productDetails.orderProductPrefixId = orderData.invoicePrefix.concat('-' + odrDate + orderData.orderId) + j;
@@ -410,13 +410,13 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
             customerCartCondition.ip = orderData.ip;
         }
         const cart = yield customerCartService.findOne({ where: customerCartCondition });
-        if (cart !== undefined) {
-            yield customerCartService.delete(cart.id);
+        if (cart) {
+            yield customerCartService.delete({ id: cart.id });
         }
         // -- VEN
         if (orderProduct[i].vendorId !== 0) {
             const val = yield vendorProductService.findOne({ where: { productId: orderProduct[i].productId, vendorId: orderProduct[i].vendorId } });
-            if (val !== undefined) {
+            if (val) {
                 const vendor = yield vendorService.findOne({ where: { vendorId: val.vendorId } });
                 const vendororders = {};
                 vendororders.subOrderId = orderData.invoicePrefix.concat('-' + odrDate + orderData.orderId) + val.vendorId + j;
@@ -441,7 +441,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
                             groupId: vendor.vendorGroupId,
                         },
                     });
-                    const defaultCommission = yield vendorSettingService.findOne({});
+                    const defaultCommission = yield vendorSettingService.findOne({ where: {} });
                     const defCommission = defaultCommission.defaultCommission;
                     vendororders.commission = (vendorGroup && vendorGroup.commission) ? vendorGroup.commission : defCommission;
                 }
@@ -485,14 +485,19 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
         }
         // for stock management
         if (productData.productType === 'physical' && productData.hasStock === 1) {
-            const product = yield skuService.findOne({ where: { skuName: productInformation.skuName } });
-            product.quantity = +product.quantity - +productInformation.quantity;
-            const prod = yield skuService.save(product);
-            if (productData.isSimplified === 0) {
-                const findSku = yield skuService.findOne({ where: { skuName: productInformation.skuName } });
-                findSku.quantity = +findSku.quantity - +productInformation.quantity;
-                yield skuService.save(findSku);
+            const skuValue = yield skuService.findOne({ where: { skuName: productInformation.skuName } });
+            skuValue.quantity = +skuValue.quantity - +productInformation.quantity;
+            const prod = yield skuService.save(skuValue);
+            if (productData.isSimplified !== 0) {
+                const productValue = yield productService.findOne({ where: { productId: productInformation.productId } });
+                productValue.quantity = productValue.quantity - +productInformation.quantity;
+                yield productService.save(productValue);
             }
+            // if (productData.isSimplified === 0) {
+            //     const findSku: any = await skuService.findOne({ where: { skuName: productInformation.skuName } });
+            //     findSku.quantity = +findSku.quantity - +productInformation.quantity;
+            //     await skuService.save(findSku);
+            // }
             if (+prod.quantity <= +prod.notifyMinQuantity) {
                 const productStockAlert = {};
                 productStockAlert.productId = productInformation.productId;
@@ -501,7 +506,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
                 yield productStockAlertService.save(productStockAlert);
                 // Send email for stock notify
                 const findVendorProduct = yield vendorProductService.findOne({ where: { productId: productInformation.productId }, relations: ['vendor'] });
-                const findProductNotifyTemp = yield emailTemplateService.findOne({ where: { emailTemplateId: 46 } });
+                const findProductNotifyTemp = yield emailTemplateService.findOne(46);
                 if (findVendorProduct) {
                     const customer = yield customerService.findOne({ where: { id: findVendorProduct.vendor.customerId } });
                     const vendorMessage = findProductNotifyTemp.content.replace(/{name}/g, customer.firstName + ' ' + customer.lastName).replace(/{productName}/g, productData.name);
@@ -593,7 +598,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
                 for (const vendInvoiceItem of vendorInvoiceItem) {
                     const vendorProductInformation = yield orderProductService.findOne({ where: { orderProductId: vendInvoiceItem.orderProductId }, select: ['orderProductId', 'orderId', 'productId', 'name', 'model', 'quantity', 'total', 'productPrice', 'basePrice', 'skuName', 'taxValue', 'taxType', 'orderProductPrefixId'] });
                     // const vendorProductInformation = await this.orderProductService.findOne({ where: { orderProductId: vendInvoiceItem.orderProductId }, select: ['orderProductId', 'orderId', 'productId', 'name', 'model', 'quantity', 'total', 'productPrice', 'basePrice', 'varientName', 'skuName', 'taxValue', 'taxType', 'productVarientOptionId', 'orderProductPrefixId'] });
-                    const vendorProductImageData = yield productService.findOne(vendorProductInformation.productId);
+                    const vendorProductImageData = yield productService.findOne({ where: { productId: vendorProductInformation.productId } });
                     let vendorProductImageDetail;
                     vendorProductImageDetail = yield productImageService.findOne({ where: { productId: vendorProductInformation.productId, defaultImage: 1 } });
                     vendorProductImageData.productInformationData = vendorProductInformation;
@@ -649,7 +654,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
         codCustomerMail.isAttachment = false;
         codCustomerMail.attachmentDetails = '';
         // MAILService.sendMail(storeMailContents, orderData.email, emailContent.subject, false, false, '');
-        const order = yield orderService.findOne(orderData.orderId);
+        const order = yield orderService.findOne({ where: { orderId: orderData.orderId } });
         order.paymentType = plugin ? plugin.pluginName : '';
         order.productDetail = yield orderProductService.find({ where: { orderId: orderData.orderId } }).then((val) => {
             const productImage = val.map((value) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {

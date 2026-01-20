@@ -1,5 +1,4 @@
-import { DataSource } from "typeorm";
-export declare const orderCreate: (_connection: DataSource, payload: {
+export declare const orderCreate: (_connection: any, payload: {
     checkoutPayload: any;
     pluginModule: string[];
     ipAddress: string;

@@ -1,10 +1,9 @@
-import { DataSource } from "typeorm";
 import { findDiscountPricewithSku, findSpecialPriceWithSku, findTirePrice } from "./service/order-service";
 import { hashPassword } from "./service/order-service-utils";
 import moment from "moment";
 
 export const orderCreate = async (
-    _connection: DataSource,
+    _connection: any,
     payload: {
         checkoutPayload: any,
         pluginModule: string[],
@@ -59,7 +58,7 @@ export const orderCreate = async (
 
     const checkoutParam = payload.checkoutPayload;
 
-    const logo = await settingService.findOne({});
+    const logo = await settingService.findOne({ where: {} });
     const coupon = {
         couponCode: checkoutParam.couponCode,
         couponData: checkoutParam.couponData,
@@ -107,7 +106,7 @@ export const orderCreate = async (
         taxType = productTire.taxType;
         if (taxType === 2 && taxType) {
             const tax: any = await taxService.findOne({ where: { taxId: productTire.taxValue } });
-            taxValue = (tax !== undefined) ? tax.taxPercentage : 0;
+            taxValue = (tax) ? tax.taxPercentage : 0;
         } else if (taxType === 1 && taxType) {
             taxValue = productTire.taxValue;
         }
@@ -138,9 +137,9 @@ export const orderCreate = async (
                     const todaydate = dateNow.getFullYear() + '-' + (dateNow.getMonth() + 1) + '-' + dateNow.getDate();
                     const productSpecial = await findSpecialPriceWithSku(_connection, val.productId, sku.id, todaydate);
                     const productDiscount = await findDiscountPricewithSku(_connection, val.productId, sku.id, todaydate);
-                    if (productSpecial !== undefined) {
+                    if (productSpecial) {
                         tirePrice = productSpecial.price;
-                    } else if (productDiscount !== undefined) {
+                    } else if (productDiscount) {
                         tirePrice = productDiscount.price;
                     } else {
                         tirePrice = sku.price;
@@ -173,7 +172,7 @@ export const orderCreate = async (
         dynamicData[val.skuName] = obj;
     }
     for (const val of orderProducts) {
-        const product: any = await productService.findOne(val.productId);
+        const product: any = await productService.findOne({ where: { productId: val.productId } });
         const sku: any = await skuService.findOne({ where: { skuName: val.skuName } });
         if (product.productType === 'physical' && product.hasStock === 1) {
             if (!(+sku.minQuantityAllowedCart <= +val.quantity)) {
@@ -202,7 +201,7 @@ export const orderCreate = async (
         }
     }
     const plugin: any = await pluginService.findOne({ where: { id: checkoutParam.paymentMethod } });
-    if (plugin === undefined) {
+    if (!plugin) {
         return {
             status: 0,
             message: 'Payment method is invalid',
@@ -233,7 +232,7 @@ export const orderCreate = async (
                 deleteFlag: 0,
             },
         });
-        if (customerEmail === undefined) {
+        if (!customerEmail) {
             if (checkoutParam.password) {
                 const newUser = {} as any;
                 newUser.firstName = checkoutParam.shippingFirstName;
@@ -377,7 +376,7 @@ export const orderCreate = async (
     const setting: any = await settingService.findOne({ where: { settingsId: payload.siteId } });
     newOrder.orderStatusId = setting ? setting.orderStatus : 0;
     newOrder.invoicePrefix = setting ? setting.invoicePrefix : '';
-    const currencyVal: any = await currencyService.findOne(setting.storeCurrencyId);
+    const currencyVal: any = await currencyService.findOne({ where: { currencyId: setting.storeCurrencyId } });
     newOrder.currencyCode = currencyVal ? currencyVal.code : '';
     newOrder.currencyValue = currencyVal ? currencyVal.value : '';
     newOrder.currencySymbolLeft = currencyVal ? currencyVal.symbolLeft : '';
@@ -399,7 +398,7 @@ export const orderCreate = async (
         const dynamicPrices = dynamicData[orderProduct[i].skuName];
         const productDetails = {} as any;
         productDetails.productId = orderProduct[i].productId;
-        const productData: any = await productService.findOne(orderProduct[i].productId);
+        const productData: any = await productService.findOne({ where: { productId: orderProduct[i].productId } });
         const nwDate = new Date();
         const odrDate = nwDate.getFullYear() + ('0' + (nwDate.getMonth() + 1)).slice(-2) + ('0' + nwDate.getDate()).slice(-2);
         productDetails.orderProductPrefixId = orderData.invoicePrefix.concat('-' + odrDate + orderData.orderId) + j;
@@ -429,13 +428,13 @@ export const orderCreate = async (
             customerCartCondition.ip = orderData.ip;
         }
         const cart: any = await customerCartService.findOne({ where: customerCartCondition });
-        if (cart !== undefined) {
-            await customerCartService.delete(cart.id);
+        if (cart) {
+            await customerCartService.delete({ id: cart.id });
         }
         // -- VEN
         if (orderProduct[i].vendorId !== 0) {
             const val: any = await vendorProductService.findOne({ where: { productId: orderProduct[i].productId, vendorId: orderProduct[i].vendorId } });
-            if (val !== undefined) {
+            if (val) {
                 const vendor: any = await vendorService.findOne({ where: { vendorId: val.vendorId } });
                 const vendororders = {} as any;
                 vendororders.subOrderId = orderData.invoicePrefix.concat('-' + odrDate + orderData.orderId) + val.vendorId + j;
@@ -458,7 +457,7 @@ export const orderCreate = async (
                             groupId: vendor.vendorGroupId,
                         },
                     });
-                    const defaultCommission: any = await vendorSettingService.findOne({});
+                    const defaultCommission: any = await vendorSettingService.findOne({ where: {} });
                     const defCommission = defaultCommission.defaultCommission;
                     vendororders.commission = (vendorGroup && vendorGroup.commission) ? vendorGroup.commission : defCommission;
                 }
@@ -507,14 +506,19 @@ export const orderCreate = async (
 
         // for stock management
         if (productData.productType === 'physical' && productData.hasStock === 1) {
-            const product: any = await skuService.findOne({ where: { skuName: productInformation.skuName } });
-            product.quantity = +product.quantity - +productInformation.quantity;
-            const prod: any = await skuService.save(product);
-            if (productData.isSimplified === 0) {
-                const findSku: any = await skuService.findOne({ where: { skuName: productInformation.skuName } });
-                findSku.quantity = +findSku.quantity - +productInformation.quantity;
-                await skuService.save(findSku);
+            const skuValue: any = await skuService.findOne({ where: { skuName: productInformation.skuName } });
+            skuValue.quantity = +skuValue.quantity - +productInformation.quantity;
+            const prod: any = await skuService.save(skuValue);
+            if (productData.isSimplified !== 0) {
+                const productValue: any = await productService.findOne({ where: { productId: productInformation.productId } });
+                productValue.quantity = productValue.quantity - +productInformation.quantity;
+                await productService.save(productValue);
             }
+            // if (productData.isSimplified === 0) {
+            //     const findSku: any = await skuService.findOne({ where: { skuName: productInformation.skuName } });
+            //     findSku.quantity = +findSku.quantity - +productInformation.quantity;
+            //     await skuService.save(findSku);
+            // }
             if (+prod.quantity <= +prod.notifyMinQuantity) {
                 const productStockAlert = {} as any;
                 productStockAlert.productId = productInformation.productId;
@@ -523,7 +527,7 @@ export const orderCreate = async (
                 await productStockAlertService.save(productStockAlert);
                 // Send email for stock notify
                 const findVendorProduct: any = await vendorProductService.findOne({ where: { productId: productInformation.productId }, relations: ['vendor'] });
-                const findProductNotifyTemp: any = await emailTemplateService.findOne({ where: { emailTemplateId: 46 } });
+                const findProductNotifyTemp: any = await emailTemplateService.findOne(46);
                 if (findVendorProduct) {
                     const customer: any = await customerService.findOne({ where: { id: findVendorProduct.vendor.customerId } });
                     const vendorMessage = findProductNotifyTemp.content.replace(/{name}/g, customer.firstName + ' ' + customer.lastName).replace(/{productName}/g, productData.name);
@@ -620,7 +624,7 @@ export const orderCreate = async (
                 for (const vendInvoiceItem of vendorInvoiceItem) {
                     const vendorProductInformation: any = await orderProductService.findOne({ where: { orderProductId: vendInvoiceItem.orderProductId }, select: ['orderProductId', 'orderId', 'productId', 'name', 'model', 'quantity', 'total', 'productPrice', 'basePrice', 'skuName', 'taxValue', 'taxType', 'orderProductPrefixId'] });
                     // const vendorProductInformation = await this.orderProductService.findOne({ where: { orderProductId: vendInvoiceItem.orderProductId }, select: ['orderProductId', 'orderId', 'productId', 'name', 'model', 'quantity', 'total', 'productPrice', 'basePrice', 'varientName', 'skuName', 'taxValue', 'taxType', 'productVarientOptionId', 'orderProductPrefixId'] });
-                    const vendorProductImageData: any = await productService.findOne(vendorProductInformation.productId);
+                    const vendorProductImageData: any = await productService.findOne({ where: { productId: vendorProductInformation.productId } });
                     let vendorProductImageDetail;
                     vendorProductImageDetail = await productImageService.findOne({ where: { productId: vendorProductInformation.productId, defaultImage: 1 } });
                     vendorProductImageData.productInformationData = vendorProductInformation;
@@ -684,7 +688,7 @@ export const orderCreate = async (
 
         // MAILService.sendMail(storeMailContents, orderData.email, emailContent.subject, false, false, '');
 
-        const order: any = await orderService.findOne(orderData.orderId);
+        const order: any = await orderService.findOne({ where: { orderId: orderData.orderId } });
         order.paymentType = plugin ? plugin.pluginName : '';
         order.productDetail = await orderProductService.find({ where: { orderId: orderData.orderId } }).then((val) => {
             const productImage = val.map(async (value: any) => {

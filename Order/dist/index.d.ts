@@ -1,4 +1,4 @@
-declare const orderCreate: (_connection: import("typeorm").DataSource, payload: {
+declare const orderCreate: (_connection: any, payload: {
     checkoutPayload: any;
     pluginModule: string[];
     ipAddress: string;
