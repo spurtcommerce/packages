@@ -15,6 +15,7 @@ export const orderCreate = async (
         baseUrl: string,
         dirName: string,
         siteId: number,
+        currencyCode: string,
     }
 ): Promise<{
     status: number,
@@ -195,7 +196,7 @@ export const orderCreate = async (
             if (!(+sku.quantity >= +val.quantity)) {
                 return {
                     status: 0,
-                    message: 'Available stock for' + product.name + ' - ' + val.skuName + 'is' + sku.quantity,
+                    message: `Available stock for ${product.name} - ${val.skuName} is ${sku.quantity}`,
                 };
             }
         }
@@ -385,6 +386,21 @@ export const orderCreate = async (
     newOrder.paymentAddressFormat = checkoutParam.shippingAddressFormat;
     newOrder.createdDate = moment().format('YYYY-MM-DD HH:mm:ss');
     newOrder.modifiedDate = moment().format('YYYY-MM-DD HH:mm:ss');
+    const currencyCode = payload.currencyCode || 'INR';
+
+    let validCurrency = await currencyService.findOne({
+        where: { code: currencyCode, isActive: 1 },
+    });
+
+    if (!validCurrency) {
+        validCurrency = await currencyService.findOne({
+            where: { code: 'INR', isActive: 1 },
+        });
+    }
+
+    newOrder.currencyExchangeCode = validCurrency.code;
+    newOrder.currencyExchangeSymbolLeft = validCurrency.symbolLeft;
+    newOrder.rateUsed = validCurrency.value;
     const orderData: any = await orderService.save(newOrder);
     await orderLogService.save({ orderLogId: undefined, ...orderData });
     // const currencySymbol: any = await currencyService.findOne(setting.storeCurrencyId);

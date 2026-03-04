@@ -178,7 +178,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
             if (!(+sku.quantity >= +val.quantity)) {
                 return {
                     status: 0,
-                    message: 'Available stock for' + product.name + ' - ' + val.skuName + 'is' + sku.quantity,
+                    message: `Available stock for ${product.name} - ${val.skuName} is ${sku.quantity}`,
                 };
             }
         }
@@ -367,6 +367,18 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
     newOrder.paymentAddressFormat = checkoutParam.shippingAddressFormat;
     newOrder.createdDate = (0, moment_1.default)().format('YYYY-MM-DD HH:mm:ss');
     newOrder.modifiedDate = (0, moment_1.default)().format('YYYY-MM-DD HH:mm:ss');
+    const currencyCode = payload.currencyCode || 'INR';
+    let validCurrency = yield currencyService.findOne({
+        where: { code: currencyCode, isActive: 1 },
+    });
+    if (!validCurrency) {
+        validCurrency = yield currencyService.findOne({
+            where: { code: 'INR', isActive: 1 },
+        });
+    }
+    newOrder.currencyExchangeCode = validCurrency.code;
+    newOrder.currencyExchangeSymbolLeft = validCurrency.symbolLeft;
+    newOrder.rateUsed = validCurrency.value;
     const orderData = yield orderService.save(newOrder);
     yield orderLogService.save(Object.assign({ orderLogId: undefined }, orderData));
     // const currencySymbol: any = await currencyService.findOne(setting.storeCurrencyId);

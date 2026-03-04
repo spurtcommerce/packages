@@ -10,6 +10,7 @@ declare const order: {
         baseUrl: string;
         dirName: string;
         siteId: number;
+        currencyCode: string;
     }) => Promise<{
         status: number;
         message: string;

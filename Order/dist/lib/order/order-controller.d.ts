@@ -9,6 +9,7 @@ export declare const orderCreate: (_connection: any, payload: {
     baseUrl: string;
     dirName: string;
     siteId: number;
+    currencyCode: string;
 }) => Promise<{
     status: number;
     message: string;
