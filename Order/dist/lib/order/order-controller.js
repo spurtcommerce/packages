@@ -35,6 +35,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
     const vendorInvoiceService = _connection.getRepository('VendorInvoice');
     const vendorInvoiceItemService = _connection.getRepository('VendorInvoiceItem');
     const addressService = _connection.getRepository('Address');
+    const productToCategoryService = _connection.getRepository('ProductToCategory');
     const newCustomerMail = {};
     const codAdminMail = {};
     const codCustomerMail = {};
@@ -104,10 +105,27 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
                     priceGroupDetailId = priceByQuantity.id;
                 }
             }
+            // promotion
+            let promotionPrice;
+            if (payload.pluginModule.includes('Promotion') && (yield pluginService.findOne({ where: { slugName: 'promotion', pluginStatus: 1 } }))) {
+                const importPath = payload.dirName + '/../../../../add-ons/Promotion/PromotionResolver';
+                const { getApplicablePromotion } = require(importPath);
+                const product = yield productToCategoryService.find({ where: { productId: val.productId } });
+                const categoryIds = product.map(x => x.categoryId);
+                const promotion = yield getApplicablePromotion(val.vendorId, categoryIds);
+                if (promotion) {
+                    const originalPrice = Number(val.productPrice);
+                    const promotionAmount = Number(promotion.promotionAmount);
+                    promotionPrice = Number((originalPrice - (originalPrice * promotionAmount) / 100).toFixed(2));
+                }
+            }
             if (!tirePrice) {
                 const findWithQty = yield (0, order_service_1.findTirePrice)(_connection, val.productId, sku.id, val.quantity);
                 if (findWithQty) {
                     tirePrice = findWithQty.price;
+                }
+                else if (promotionPrice) {
+                    tirePrice = +promotionPrice;
                 }
                 else {
                     const dateNow = new Date();

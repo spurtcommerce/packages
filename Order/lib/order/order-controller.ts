@@ -51,6 +51,7 @@ export const orderCreate = async (
     const vendorInvoiceService = _connection.getRepository('VendorInvoice');
     const vendorInvoiceItemService = _connection.getRepository('VendorInvoiceItem');
     const addressService = _connection.getRepository('Address');
+    const productToCategoryService = _connection.getRepository('ProductToCategory');
 
     const newCustomerMail = {} as any;
     const codAdminMail = {} as any;
@@ -129,10 +130,28 @@ export const orderCreate = async (
                     priceGroupDetailId = priceByQuantity.id;
                 }
             }
+
+            // promotion
+            let promotionPrice;
+            if (payload.pluginModule.includes('Promotion') && await pluginService.findOne({ where: { slugName: 'promotion', pluginStatus: 1 } })) {
+                const importPath = payload.dirName + '/../../../../add-ons/Promotion/PromotionResolver';
+                const { getApplicablePromotion } = require(importPath);
+                const product = await productToCategoryService.find({ where: { productId: val.productId } });
+                const categoryIds = product.map(x => x.categoryId);
+                const promotion = await getApplicablePromotion(val.vendorId, categoryIds);
+                if (promotion) {
+                    const originalPrice = Number(val.productPrice);
+                    const promotionAmount = Number(promotion.promotionAmount);
+                    promotionPrice = Number((originalPrice - (originalPrice * promotionAmount) / 100).toFixed(2));
+                }
+            }
+
             if (!tirePrice) {
                 const findWithQty = await findTirePrice(_connection, val.productId, sku.id, val.quantity);
                 if (findWithQty) {
                     tirePrice = findWithQty.price;
+                } else if (promotionPrice) {
+                    tirePrice = +promotionPrice;
                 } else {
                     const dateNow = new Date();
                     const todaydate = dateNow.getFullYear() + '-' + (dateNow.getMonth() + 1) + '-' + dateNow.getDate();
