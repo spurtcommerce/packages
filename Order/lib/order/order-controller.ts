@@ -16,6 +16,8 @@ export const orderCreate = async (
         dirName: string,
         siteId: number,
         currencyCode: string,
+        isShoppingCart: boolean,
+        shoppingCartId: number,
     }
 ): Promise<{
     status: number,
@@ -420,6 +422,7 @@ export const orderCreate = async (
     newOrder.currencyExchangeCode = validCurrency.code;
     newOrder.currencyExchangeSymbolLeft = validCurrency.symbolLeft;
     newOrder.rateUsed = validCurrency.value;
+    newOrder.isShoppingCart = payload.isShoppingCart ?? false;
     const orderData: any = await orderService.save(newOrder);
     await orderLogService.save({ orderLogId: undefined, ...orderData });
     // const currencySymbol: any = await currencyService.findOne(setting.storeCurrencyId);
@@ -466,6 +469,32 @@ export const orderCreate = async (
         if (cart) {
             await customerCartService.delete({ id: cart.id });
         }
+            // Remove ordered product from Shopping List
+            if (payload.isShoppingCart === true && payload.pluginModule.includes('ShoppingCart')) {
+
+                const importPath =
+        payload.dirName + '/../../../../add-ons/ShoppingCart/ShoppingCartHook';
+
+    const shoppingCartHook = await require(importPath);
+
+    const shoppingCartData = await shoppingCartHook.findOne({
+        where: {
+            id: payload.shoppingCartId,
+            customerId: orderData.customerId,
+            isOrdered: 0,
+            isDelete: 0,
+        },
+    });
+
+    if (shoppingCartData) {
+        await shoppingCartHook.update(
+            shoppingCartData.id,
+            {
+                isOrdered: 1,
+            },
+        );
+    }
+            }
         // -- VEN
         if (orderProduct[i].vendorId !== 0) {
             const val: any = await vendorProductService.findOne({ where: { productId: orderProduct[i].productId, vendorId: orderProduct[i].vendorId } });
@@ -562,7 +591,7 @@ export const orderCreate = async (
                 await productStockAlertService.save(productStockAlert);
                 // Send email for stock notify
                 const findVendorProduct: any = await vendorProductService.findOne({ where: { productId: productInformation.productId }, relations: ['vendor'] });
-                const findProductNotifyTemp: any = await emailTemplateService.findOne(46);
+                const findProductNotifyTemp: any = await emailTemplateService.findOne({ where: { emailTemplateId: 46 } });
                 if (findVendorProduct) {
                     const customer: any = await customerService.findOne({ where: { id: findVendorProduct.vendor.customerId } });
                     const vendorMessage = findProductNotifyTemp.content.replace(/{name}/g, customer.firstName + ' ' + customer.lastName).replace(/{productName}/g, productData.name);

@@ -10,6 +10,8 @@ export declare const orderCreate: (_connection: any, payload: {
     dirName: string;
     siteId: number;
     currencyCode: string;
+    isShoppingCart: boolean;
+    shoppingCartId: number;
 }) => Promise<{
     status: number;
     message: string;

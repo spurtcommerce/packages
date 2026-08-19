@@ -6,7 +6,7 @@ const order_service_1 = require("./service/order-service");
 const order_service_utils_1 = require("./service/order-service-utils");
 const moment_1 = (0, tslib_1.__importDefault)(require("moment"));
 const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, void 0, void 0, function* () {
-    var _a, _b, _c, _d, _e, _f;
+    var _a, _b, _c, _d, _e, _f, _g;
     const orderService = _connection.getRepository('Order');
     const orderProductService = _connection.getRepository('OrderProduct');
     const orderTotalService = _connection.getRepository('OrderTotal');
@@ -397,6 +397,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
     newOrder.currencyExchangeCode = validCurrency.code;
     newOrder.currencyExchangeSymbolLeft = validCurrency.symbolLeft;
     newOrder.rateUsed = validCurrency.value;
+    newOrder.isShoppingCart = (_g = payload.isShoppingCart) !== null && _g !== void 0 ? _g : false;
     const orderData = yield orderService.save(newOrder);
     yield orderLogService.save(Object.assign({ orderLogId: undefined }, orderData));
     // const currencySymbol: any = await currencyService.findOne(setting.storeCurrencyId);
@@ -442,6 +443,24 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
         const cart = yield customerCartService.findOne({ where: customerCartCondition });
         if (cart) {
             yield customerCartService.delete({ id: cart.id });
+        }
+        // Remove ordered product from Shopping List
+        if (payload.isShoppingCart === true && payload.pluginModule.includes('ShoppingCart')) {
+            const importPath = payload.dirName + '/../../../../add-ons/ShoppingCart/ShoppingCartHook';
+            const shoppingCartHook = yield require(importPath);
+            const shoppingCartData = yield shoppingCartHook.findOne({
+                where: {
+                    id: payload.shoppingCartId,
+                    customerId: orderData.customerId,
+                    isOrdered: 0,
+                    isDelete: 0,
+                },
+            });
+            if (shoppingCartData) {
+                yield shoppingCartHook.update(shoppingCartData.id, {
+                    isOrdered: 1,
+                });
+            }
         }
         // -- VEN
         if (orderProduct[i].vendorId !== 0) {
@@ -536,7 +555,7 @@ const orderCreate = (_connection, payload) => (0, tslib_1.__awaiter)(void 0, voi
                 yield productStockAlertService.save(productStockAlert);
                 // Send email for stock notify
                 const findVendorProduct = yield vendorProductService.findOne({ where: { productId: productInformation.productId }, relations: ['vendor'] });
-                const findProductNotifyTemp = yield emailTemplateService.findOne(46);
+                const findProductNotifyTemp = yield emailTemplateService.findOne({ where: { emailTemplateId: 46 } });
                 if (findVendorProduct) {
                     const customer = yield customerService.findOne({ where: { id: findVendorProduct.vendor.customerId } });
                     const vendorMessage = findProductNotifyTemp.content.replace(/{name}/g, customer.firstName + ' ' + customer.lastName).replace(/{productName}/g, productData.name);
